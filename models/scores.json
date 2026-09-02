@@ -1,0 +1,59 @@
+{
+ "minutes": {
+  "metric": "AUC",
+  "value": 0.943,
+  "rows": 82075
+ },
+ "price": {
+  "metric": "AUC",
+  "value": 0.979,
+  "rows": 5906
+ },
+ "points": {
+  "metric": "MAE",
+  "value": 1.006,
+  "rows": 82075,
+  "naive_baseline_mae": 1.082,
+  "beats_baseline": true
+ },
+ "ceiling": {
+  "metric": "AUC",
+  "value": 0.849,
+  "rows": 82075,
+  "target": "P(10+ points next gameweek)"
+ },
+ "bonus": {
+  "metric": "MAE",
+  "value": 0.148,
+  "rows": 82075
+ },
+ "cleansheet": {
+  "metric": "AUC",
+  "value": 0.824,
+  "rows": 36013
+ },
+ "defcon": {
+  "metric": "AUC",
+  "value": 0.919,
+  "rows": 28076,
+  "target": "P(hits DefCon threshold)"
+ },
+ "herd": {
+  "metric": "MAE",
+  "value": 0.0452,
+  "rows": 82075,
+  "target": "next gameweek net transfers as share of owners"
+ },
+ "injury_return": {
+  "metric": "MAE (minutes)",
+  "value": 13.0,
+  "rows": 20150,
+  "target": "minutes in the week back"
+ },
+ "rotation": {
+  "metric": "MAE (minutes)",
+  "value": 14.4,
+  "rows": 82075,
+  "target": "minutes under fixture congestion"
+ }
+}
