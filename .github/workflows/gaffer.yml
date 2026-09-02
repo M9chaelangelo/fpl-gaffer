@@ -1,0 +1,42 @@
+name: gaffer
+on:
+  schedule:
+    # Wakes daily and re-reads the real deadline from the API, because FPL can
+    # move a deadline (never within 24h of it). On a non-deadline day the job
+    # exits in a few seconds and commits nothing.
+    - cron: "0 6 * * *"
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+    inputs:
+      free_transfers:
+        description: "Free transfers available this week (1-5)"
+        required: false
+        default: "1"
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: train models if missing
+        run: |
+          if [ ! -f models/minutes.joblib ]; then
+            echo "no trained models in the repo — training now (a few minutes)"
+            python -m gaffer.learn
+          fi
+      - name: solve
+        run: |
+          python -m gaffer.main --only-on-deadline-day \
+            --free-transfers "${{ github.event.inputs.free_transfers || '' }}"
+      - name: publish
+        run: |
+          git config user.name gaffer
+          git config user.email gaffer@users.noreply.github.com
+          git add docs models
+          git diff --staged --quiet || git commit -m "gaffer: $(date -u +%F)"
+          git push

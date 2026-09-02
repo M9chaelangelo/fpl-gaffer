@@ -1,0 +1,82 @@
+# --- who you are -------------------------------------------------------------
+entry_id: 3907632           # your FPL team id
+league_id: 88825            # FPL Aarhus Liga
+
+# --- how the gaffer thinks ---------------------------------------------------
+horizon: 5                  # gameweeks to plan ahead
+decay: 0.87                 # weight on each future gameweek (near-term certainty)
+hit_cost: 4                 # points per extra transfer
+hit_threshold: 6.0
+min_transfer_gain: 1.5    # a transfer must beat this to be recommended; wildcard weeks are exempt
+max_chips_in_horizon: 2          # only recommend a hit if it gains this much over the horizon
+bench_weights: [0.16, 0.11, 0.06, 0.02]
+
+# --- mini-league strategy ----------------------------------------------------
+# 0.0 = pure expected points. 1.0 = pure differential-chasing.
+# Raise it when you are behind and need variance; lower it when you are ahead.
+rivalry: 0.35
+
+# --- value of waiting --------------------------------------------------------
+# What perfect information is worth on a 15-player rebuild, in points.
+# 12.0 is about 0.8 points per player. Raise it if you think early-season form
+# is mostly noise; lower it if you trust two gameweeks of data.
+info_value: 22.0
+break_bonus: 4.0          # extra credit for a gameweek right after an international break
+rival_depth: 10             # how many teams above you count as "the pack"
+
+# --- projections -------------------------------------------------------------
+solio_url: https://fpl.solioanalytics.com/api/data/latest.json
+solio_weight: 0.7         # trust Solio over the local model where both exist
+form_weight: 0.30         # weight on recent form vs season-long rate
+strength_weight: 0.5      # weight on measured team attack/defence vs FPL fixture rating
+
+# --- output ------------------------------------------------------------------
+out_dir: docs
+pool_size: 130         # candidate players in the solve; higher is slower
+time_limit: 110        # seconds the solver may spend
+hit_time_limit: 60     # shorter budget for the "is a hit worth it" re-solve
+elite_sample: 100      # how many of the world's top managers to sample
+
+# --- your squad right now ----------------------------------------------------
+# The public API only shows last gameweek's team, and transfers you have already
+# made for the upcoming deadline are invisible to it. If you have moved this
+# week, list all fifteen here and set the bank. Comment it out to use the API.
+current_squad:
+  - Lammens
+  - Kinsky
+  - Maguire
+  - Ajer
+  - Thomas
+  - Egan
+  - N.Williams
+  - Elanga
+  - Wirtz
+  - Szoboszlai
+  - Mbeumo
+  - Ndiaye
+  - Haaland
+  - Isak
+  - João Pedro
+bank: 1.4
+
+# --- locked chip plan --------------------------------------------------------
+# Gameweeks you have committed to. The solver stops re-deciding these every week
+# and plans around them instead. Remove a line to hand that chip back to it.
+# One chip per gameweek — the solver enforces that, so do not double-book.
+chip_plan:
+  tc: 7      # Triple Captain — Haaland home to Ipswich, 13.9 projected vs 9.0 in GW3
+  wc: 6      # Wildcard, 10 Oct, first week after the international break
+  bb: 9      # Bench Boost — see notes; GW7 clashes with the best Haaland fixture
+
+# --- European commitments ----------------------------------------------------
+# The Premier League fixture API knows nothing about European football, so the
+# competing clubs and the gameweeks that sit between European matchdays are
+# declared here. Check the UEFA calendar and update; a wrong list is worse than
+# an empty one.
+european_teams: [MCI, ARS, LIV, CHE, NEW, TOT, AVL, NFO]
+european_weeks: [7, 8, 10, 13, 16, 18]
+european_haircut: 0.12    # minutes lost in a European week
+midweek_haircut: 0.06     # minutes lost in a domestic midweek round
+
+# --- calibration -------------------------------------------------------------
+calibrate_to_solio: true  # scale local projections to match Solio where they overlap
