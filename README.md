@@ -392,7 +392,13 @@ python -m pytest tests -q
 Thirty-nine of them, covering the planner and the page it renders. They run on
 a synthetic squad — no network, no API, no solver — because the rules they
 check are exactly the ones that are expensive to get wrong and impossible to
-spot by eye on a Friday evening. The workflow runs them before every solve.
+spot by eye on a Friday evening.
+
+Two workflows run them, and both are needed. `tests.yml` fires on every push
+and pull request, so a branch is checked before it is merged. `gaffer.yml`
+runs them again immediately before the solve, because the code that matters is
+the code on `main` on deadline morning, not the code that passed review a week
+earlier.
 
 ## What it does not do
 
