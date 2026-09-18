@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import yaml
 
 from . import (fetch, league, projections, prices, optimise, report, timing,
-               styles, elite, explain, defence, calibrate, rotation)
+               styles, elite, explain, defence, calibrate, rotation, planner)
 
 
 def purchase_prices(boot, entry_id, squad_ids):
@@ -202,18 +202,32 @@ def main():
                                            lg["pack_own"], elite_own, pf, gws),
         })
 
+    # Grade the plan Michael actually wrote, against the line the solver just
+    # found. The solver answers "what should I do"; this answers "does what I
+    # intend to do work, and what does it cost me".
+    solver_total = round(sum(w["ep"] for w in weeks), 2)
+    graded = planner.grade(cfg, proj, squad_ids, bank, ft, gws,
+                           sell=sell, solver_total=solver_total)
+    if graded["unresolved"]:
+        print("  !! names in my_plan that could not be resolved: "
+              + ", ".join(graded["unresolved"]))
+    if not graded["plan"]["legal"]:
+        print(f"  !! your plan has {len(graded['plan']['violations'])} rule "
+              "break(s) — see the report")
+
     os.makedirs(cfg["out_dir"], exist_ok=True)
     out = os.path.join(cfg["out_dir"], "index.html")
     report.render({"weeks": weeks, "deadline": deadline, "gems": gems,
                    "prices": watch, "hit_verdict": verdict, "flagged": flagged,
                    "pack_own": lg["pack_own"], "league_line": line,
-                   "rationale": rationale, "clean_sheets": cs_table}, out)
+                   "rationale": rationale, "clean_sheets": cs_table,
+                   "planner": graded}, out)
     json.dump({"gw": gw, "generated": datetime.now(timezone.utc).isoformat(),
                "weeks": [{k: v for k, v in w.items()
                           if k in ("gw", "in", "out", "hits", "chip", "ep")}
                          for w in weeks],
                "hit_verdict": verdict, "gems": gems[:20],
-               "rationale": rationale},
+               "rationale": rationale, "planner": graded},
               open(os.path.join(cfg["out_dir"], "plan.json"), "w"), indent=1)
     json.dump({"solved_gw": gw, "deadline": ev["deadline_time"],
                "solved_at": datetime.now(timezone.utc).isoformat()},

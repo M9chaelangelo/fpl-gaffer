@@ -101,6 +101,53 @@ Set it when you trigger the run:
 
 Getting this wrong is the single most common cause of a nonsense plan.
 
+## Planning your own line
+
+`optimise.plan` answers *what should I do*. The planner answers a different
+question: *I have decided to do this — does it work, and what does it cost me?*
+
+Most managers already hold a plan in their head. Wildcard after the
+international break, Bench Boost on the double. What they lack is something
+that checks it against the rules and prices it.
+
+Write it in `config.yaml`:
+
+```yaml
+my_plan:
+  5:
+    out: [Wirtz]
+    in:  [Gibbs-White]
+  7:
+    chip: tc
+```
+
+Names, not ids. `chip_plan` is folded in automatically, so a chip locked there
+still gets graded even if you never mention it in `my_plan`.
+
+The report then does three things the solver does not.
+
+**It validates.** A plan that sprints past the budget in GW9 is worse than no
+plan, because you find out at 19:29 on a Friday. Every rule the game enforces
+is checked at the gameweek it breaks — squad shape, the three-per-club limit,
+budget, selling prices, chips already spent, the twenty-transfer cap, and the
+GW19 expiry on the first set of chips. **All** breaks are reported, not just
+the first: you want to know whether it is one mistake or five before you start
+fixing.
+
+**It prices the gap.** Your plan against the solver's own line, in points, over
+the same horizon. "Bench Boost in GW9 instead of GW7" stops being a matter of
+taste and becomes a number.
+
+**It sweeps the chips.** Every free week in the horizon is tried for every chip
+you still hold, and the table says where yours sits, where the best week is,
+and what moving it is worth. That sweep is exact — every placement evaluated,
+none sampled. The limit is the horizon itself: if the right week for a Bench
+Boost is GW30 and you are planning five weeks ahead, nothing here can see it,
+and the report says so rather than pretending otherwise.
+
+Evaluation continues past a violation so the rest of the plan stays readable.
+When that happens the numbers are indicative, and the page tells you.
+
 ## The models
 
 `python -m gaffer.learn` trains on 84,577 player-gameweeks from 2023-24, 2024-25
@@ -335,6 +382,23 @@ Checked against the official rules page and the 2026/27 change notes.
   calendar rather than trusting a fixed cron
 - **Prices change at midnight UK time**
 - No AFCON this season, so there is no December free-transfer top-up
+
+## Tests
+
+```
+python -m pytest tests -q
+```
+
+Thirty-nine of them, covering the planner and the page it renders. They run on
+a synthetic squad — no network, no API, no solver — because the rules they
+check are exactly the ones that are expensive to get wrong and impossible to
+spot by eye on a Friday evening.
+
+Two workflows run them, and both are needed. `tests.yml` fires on every push
+and pull request, so a branch is checked before it is merged. `gaffer.yml`
+runs them again immediately before the solve, because the code that matters is
+the code on `main` on deadline morning, not the code that passed review a week
+earlier.
 
 ## What it does not do
 
