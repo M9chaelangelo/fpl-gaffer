@@ -5,7 +5,8 @@ from datetime import datetime, timezone
 import yaml
 
 from . import (fetch, league, projections, prices, optimise, report, timing,
-               styles, elite, explain, defence, calibrate, rotation, planner)
+               styles, elite, explain, defence, calibrate, rotation, planner,
+               webdata)
 
 
 def purchase_prices(boot, entry_id, squad_ids):
@@ -216,7 +217,17 @@ def main():
               "break(s) — see the report")
 
     os.makedirs(cfg["out_dir"], exist_ok=True)
-    out = os.path.join(cfg["out_dir"], "index.html")
+
+    # The interactive app lives in docs/index.html and is a static file in the
+    # repo; it reads data.json. The server-rendered page is still written, as
+    # report.html — it needs no JavaScript and is the thing that still works if
+    # the app breaks or the browser is ancient.
+    data = webdata.build(proj, prof, lg, elite_own, pf, gws, squad_ids, weeks,
+                         deadline, gw, planner=graded, hit_verdict=verdict,
+                         clean_sheets=cs_table)
+    webdata.write(data, cfg["out_dir"])
+
+    out = os.path.join(cfg["out_dir"], "report.html")
     report.render({"weeks": weeks, "deadline": deadline, "gems": gems,
                    "prices": watch, "hit_verdict": verdict, "flagged": flagged,
                    "pack_own": lg["pack_own"], "league_line": line,
