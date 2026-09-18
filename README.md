@@ -339,17 +339,48 @@ individual swaps are deliberate downgrades that release money for a bigger
 upgrade elsewhere, and the report says so rather than presenting them as good
 moves on their own.
 
-## Charts
+## The app
 
-The page renders inline SVG, no scripts and no external libraries:
+`docs/index.html` is an interactive page. It reads `docs/data.json`, which the
+solve writes, and runs entirely in the browser — no framework, no build step, no
+CDN. GitHub Pages serves static files, and a dependency that 404s on a Friday
+evening is worse than no dependency.
 
-- **Your team this week** — every player as a bar, grouped by position, scaled to
-  the highest projection in your eleven, with fixture and pack ownership beneath
-  the name. Bench in grey.
-- **One comparison chart per swap** — the same eight metrics for both players,
-  normalised so the longer bar is always the better number. If the incoming
-  player's bars are not visibly longer, the transfer is not obviously right.
-  That is information too.
+Four views:
+
+- **Team** — your eleven laid out on a pitch by position, captain and flags
+  marked, projection on every card. Tap a player to open him in Compare.
+- **Players** — every player in the pool, filterable by position, club, price,
+  availability and your own squad, sortable on any column. Tap a row to compare.
+- **Compare** — any two players across sixteen metrics, normalised so the longer
+  bar is always the better number, plus their projections over the horizon and
+  the same numbers as a table.
+- **Plan** — the five-week line, chip weeks, and what moving a chip is worth.
+
+The old server-rendered page is still written, as `report.html`. It needs no
+JavaScript and is what you fall back to if the app breaks.
+
+### Why the engine got more useful without getting smarter
+
+The solver already computed a twenty-five field card for every player — shot
+quality, attacking share, DefCon probability, four kinds of ownership, price
+direction. It exported that for the two players in a transfer and threw the
+other seven hundred away, which is why the page could only ever show you the
+move it had already decided on. `webdata.py` writes all of it. The page is now a
+client of the data rather than a rendering of one conclusion.
+
+### Charts
+
+Inline SVG, built in the page. The palette is a validated categorical set —
+adjacent-pair colourblind separation and contrast were checked with a script,
+not by eye — and both light and dark are selected rather than flipped. Every bar
+carries its number, because light-mode aqua sits below 3:1 against the surface
+and a label has to carry the value when colour cannot. Every chart has a table
+beside it or beneath it.
+
+Labels sit above their bars rather than in a left gutter: a gutter wide enough
+for "Defensive actions per 90" leaves no room for the bar on a phone, and
+truncating the label loses the thing you most need to read.
 
 ## The dials
 
