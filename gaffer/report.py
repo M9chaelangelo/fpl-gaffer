@@ -53,6 +53,19 @@ border-top:1px solid var(--line);padding-top:1rem}
 """
 
 
+CHIP_LABEL = {"wc": "Wildcard", "fh": "Free Hit",
+              "tc": "Triple Captain", "bb": "Bench Boost", None: "—"}
+
+
+def _name(ctx, pid):
+    """Player id to name, using whatever the report already has to hand."""
+    for w in ctx.get("weeks", []):
+        for pl in list(w.get("xi", [])) + list(w.get("bench", [])):
+            if pl.get("id") == pid:
+                return pl["name"]
+    return str(pid)
+
+
 def _esc(s):
     return html.escape(str(s))
 
@@ -232,6 +245,74 @@ def render(ctx, path):
                      f"<td class=n>{w['adjusted']:.1f}</td></tr>")
         p.append("</table><p class=note>Info credit is what waiting is worth: "
                  "more matches played, and fitness resolved after a break.</p>")
+
+    # --- your own plan ---------------------------------------------------
+    # Rendered last because it is the part you argue with rather than read.
+    pl = ctx.get("planner")
+    if pl and pl["plan"]["weeks"]:
+        p.append("<h2>Your plan</h2>")
+
+        gap = pl.get("gap")
+        if gap is None:
+            verdict = "No solver line to compare against."
+        elif gap >= -0.5:
+            verdict = (f"Your plan is worth {pl['plan']['total_ep']:.1f} points over "
+                       f"GW{pl['horizon']['from']}–{pl['horizon']['to']} — level with "
+                       "the solver's own line. Back yourself.")
+        else:
+            verdict = (f"Your plan is worth {pl['plan']['total_ep']:.1f} points over "
+                       f"GW{pl['horizon']['from']}–{pl['horizon']['to']}, "
+                       f"{abs(gap):.1f} behind the solver's line "
+                       f"({pl['solver_total']:.1f}).")
+        p.append(f"<div class=call>{_esc(verdict)}</div>")
+
+        if pl["unresolved"]:
+            p.append("<p class=note><b>Names not found:</b> "
+                     + _esc(", ".join(pl["unresolved"]))
+                     + ". Those moves were skipped — check the spelling against "
+                     "FPL's own short names.</p>")
+
+        if not pl["plan"]["legal"]:
+            p.append("<p class=note><b>This plan cannot be played as written.</b> "
+                     "The numbers below assume the illegal moves simply did not "
+                     "happen, so treat them as indicative.</p>")
+            for v in pl["plan"]["violations"]:
+                p.append(f"<p class=flagline>GW{v['gw']}: {_esc(v['message'])}</p>")
+
+        p.append("<table><tr><th>GW</th><th>Chip</th><th>Moves</th>"
+                 "<th class=n>FT</th><th class=n>Bank</th><th class=n>Hit</th>"
+                 "<th class=n>Points</th></tr>")
+        for w in pl["plan"]["weeks"]:
+            step = pl["steps"].get(w["gw"]) or pl["steps"].get(str(w["gw"])) or {}
+            moves = " · ".join(
+                f"{_name(ctx, o)} → {_name(ctx, i)}"
+                for o, i in zip(step.get("out") or [], step.get("in") or [])
+            ) or "—"
+            chip = CHIP_LABEL.get(w["chip"], "—")
+            hit = f"{w['hit']}" if w["hit"] else "—"
+            p.append(f"<tr><td>GW{w['gw']}</td><td>{_esc(chip)}</td>"
+                     f"<td>{_esc(moves)}</td><td class=n>{w['free_transfers']}</td>"
+                     f"<td class=n>{w['bank']:.1f}</td><td class=n>{hit}</td>"
+                     f"<td class=n>{w['ep']:.1f}</td></tr>")
+        p.append("</table>")
+
+        chips = [c for c in pl["chips"].values() if c["ranked"]]
+        if chips:
+            p.append("<h2>Chip weeks</h2>")
+            p.append("<table><tr><th>Chip</th><th>Yours</th><th>Best in horizon</th>"
+                     "<th class=n>Worth moving</th></tr>")
+            for c in chips:
+                where = f"GW{c['current_gw']}" if c["current_gw"] else "unplaced"
+                move = ("—" if c["move_gain"] in (None, 0)
+                        else f"{c['move_gain']:+.1f}")
+                p.append(f"<tr><td>{_esc(c['name'])}</td><td>{_esc(where)}</td>"
+                         f"<td>GW{c['best_gw']} ({c['best_gain']:+.1f})</td>"
+                         f"<td class=n>{_esc(move)}</td></tr>")
+            p.append("</table>")
+            p.append("<p class=note>Every free week in the horizon was tried, so "
+                     "this is exact — as far as the horizon reaches. If the right "
+                     "week for a chip is beyond "
+                     f"GW{pl['horizon']['to']}, nothing here can see it.</p>")
 
     p.append("<footer>Projections blend Solio Analytics' public feed with a local "
              "fallback model. Mini-league ownership from the FPL API. "

@@ -68,6 +68,24 @@ chip_plan:
   wc: 6      # Wildcard, 10 Oct, first week after the international break
   bb: 9      # Bench Boost — see notes; GW7 clashes with the best Haaland fixture
 
+# --- your own plan -----------------------------------------------------------
+# Write what you actually intend to do, and the report checks it against the
+# rules and prices it against the solver's own line. This is the bit that lets
+# you argue with the model instead of only reading it.
+#
+# Names, not ids. Chips are wc, fh, tc, bb — and `chip_plan` above is folded in
+# automatically, so you only repeat a chip here if you also want transfers that
+# week. Leave it commented out and the report just grades your chip plan.
+#
+#   my_plan:
+#     5:
+#       out: [Wirtz]
+#       in:  [Gibbs-White]
+#     7:
+#       chip: tc
+#
+# my_plan:
+
 # --- European commitments ----------------------------------------------------
 # The Premier League fixture API knows nothing about European football, so the
 # competing clubs and the gameweeks that sit between European matchdays are
