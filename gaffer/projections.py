@@ -43,6 +43,76 @@ def _minutes_model(boot, played):
     return dict(zip(ids, p))
 
 
+def _ceiling_model(boot, played, fx, lams, gws):
+    """P(10+ points), per player per gameweek.
+
+    This is the model the README already claimed captaincy used. It did not:
+    `projections.py` loaded `minutes` and nothing else, so nine trained models
+    sat in models/ as dead weight and every decision came off expected points.
+
+    Expected points and ceiling rank players differently, and that difference
+    is the whole argument for the Triple Captain chip — it only cares about the
+    tail. A 6.0 projection that hauls one week in five is a better armband than
+    a 6.4 that never does, and a mean cannot tell you which is which.
+
+    Predicted in one batch. Seven hundred players across five gameweeks is 3,500
+    single-row predicts, and scikit-learn's per-call overhead dwarfs the
+    arithmetic; batching turns seconds into milliseconds.
+
+    Returns {player_id: {gw: probability}}, or None when the model is missing —
+    the caller then carries on without it rather than failing the solve.
+    """
+    if learn is None:
+        return None
+    bundle = learn.load("ceiling")
+    if not bundle:
+        return None
+    import pandas as pd
+
+    def f(v):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return 0.0
+
+    rows, keys = [], []
+    for e in boot["elements"]:
+        # A player with no fixture has no ceiling to predict.
+        for g in gws:
+            for (_d, home, _o) in fx[e["team"]][g]:
+                rows.append({
+                    "roll_minutes": e["minutes"] / played,
+                    "roll_total_points": e["total_points"] / played,
+                    "roll_expected_goal_involvements":
+                        f(e.get("expected_goal_involvements")) / played,
+                    "roll_bps": e["bps"] / played,
+                    "value": e["now_cost"],
+                    "was_home": 1.0 if home else 0.0,
+                    # The opponent's attack is what threatens the clean sheet,
+                    # but for a ceiling it is this team's own xGC that marks a
+                    # game likely to be open — and open games are where hauls
+                    # come from.
+                    "expected_goals_conceded": lams.get(e["team"], {}).get(g) or 0.0,
+                    "roll_threat": f(e.get("threat")) / played,
+                    "roll_ict_index": f(e.get("ict_index")) / played,
+                })
+                keys.append((e["id"], g))
+
+    if not rows:
+        return None
+
+    X = pd.DataFrame(rows)[bundle["features"]].astype(float)
+    probs = bundle["model"].predict_proba(X)[:, 1]
+
+    out = {}
+    for (pid, g), pr in zip(keys, probs):
+        # A double gameweek gives two rows for the same player and week. The
+        # chance of hauling in EITHER match is the complement of missing both.
+        prev = out.setdefault(pid, {}).get(g)
+        out[pid][g] = pr if prev is None else 1 - (1 - prev) * (1 - pr)
+    return out
+
+
 def _prior(price, pos):
     if pos == "GKP":
         return 3.2 + (price - 4.0) * 0.50
@@ -111,6 +181,10 @@ def build(boot, fixtures, gws, solio_feed=None, solio_weight=0.7,
             fx[x["team_h"]][g].append((x["team_h_difficulty"], True, x["team_a"]))
             fx[x["team_a"]][g].append((x["team_a_difficulty"], False, x["team_h"]))
 
+    # P(10+ points) per player per gameweek. Needs fx and lams, so it is built
+    # here rather than alongside the minutes model.
+    ceil = _ceiling_model(boot, played, fx, lams, gws)
+
     # Solio publishes name+team, so key on that.
     solio = {}
     if solio_feed:
@@ -155,6 +229,9 @@ def build(boot, fixtures, gws, solio_feed=None, solio_weight=0.7,
 
         sol = solio.get((e["web_name"], teams[e["team"]]))
         ep, opp, conf = {}, {}, "low" if mins < 90 else "medium"
+        # Haul probability per gameweek. Empty when the model is untrained, so
+        # every consumer has to handle its absence rather than assume it.
+        hauls = (ceil or {}).get(e["id"], {})
         for g in gws:
             tot, labels = 0.0, []
             lam = lams.get(e["team"], {}).get(g)
@@ -216,5 +293,10 @@ def build(boot, fixtures, gws, solio_feed=None, solio_weight=0.7,
             "cs_prob": (round(defence.clean_sheet(lams[e["team"]][gws[0]]), 3)
                         if lams.get(e["team"], {}).get(gws[0]) else None),
             "xgc90": float(e["expected_goals_conceded_per_90"]),
+            # P(10+ points) per gameweek, and the next week broken out because
+            # that is the one the captaincy decision turns on.
+            "ceiling": {g: round(float(hauls[g]), 4) for g in gws if g in hauls},
+            "ceiling_next": (round(float(hauls[gws[0]]), 4)
+                             if gws[0] in hauls else None),
         }
     return out

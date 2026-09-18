@@ -168,8 +168,19 @@ grouped cross-validation by gameweek so there is no leakage across time.
 | rotation | minutes under fixture congestion | MAE 14.4 min |
 
 Expected points and ceiling rank players differently, and that matters: the
-Triple Captain chip only cares about the tail. `ceiling` exists so captaincy is
-chosen on haul probability rather than on an average.
+Triple Captain chip only cares about the tail. `ceiling` predicts P(10+ points)
+so the armband is chosen on haul probability rather than on an average.
+
+It is wired in three places. `projections.py` predicts it per player per
+gameweek — a double gameweek is P(haul in either match), not the second fixture
+overwriting the first. `optimise.py` adds it to the Triple Captain term, so the
+chip goes to the player who can actually spike; the tilt is small on purpose
+(`ceiling_weight`, default 6.0) because a ceiling model that outvoted expected
+points would hand the chip to a cheap lottery ticket. And the report names the
+tail, including when a *different* player in your eleven has a bigger one —
+worth the armband only if you need variance rather than points.
+
+Set `ceiling_weight: 0` to choose the armband on expected points alone.
 
 `injury_return` answers the question a fitness flag does not: he is available,
 but does he play 20 minutes or 90? `rotation` keys off rest days between league
@@ -420,7 +431,8 @@ Checked against the official rules page and the 2026/27 change notes.
 python -m pytest tests -q
 ```
 
-Thirty-nine of them, covering the planner and the page it renders. They run on
+Sixty-two of them, covering the planner, the page it renders, and the ceiling
+model's wiring. They run on
 a synthetic squad — no network, no API, no solver — because the rules they
 check are exactly the ones that are expensive to get wrong and impossible to
 spot by eye on a Friday evening.
@@ -430,6 +442,13 @@ and pull request, so a branch is checked before it is merged. `gaffer.yml`
 runs them again immediately before the solve, because the code that matters is
 the code on `main` on deadline morning, not the code that passed review a week
 earlier.
+
+### A note on the other eight models
+
+`minutes` and `ceiling` are loaded. The remaining eight — `price`, `defcon`,
+`cleansheet`, `bonus`, `herd`, `injury_return`, `rotation`, `points` — are
+trained, scored and committed, and still read by nothing. They are not wired in
+yet, and the README should not imply otherwise.
 
 ## What it does not do
 

@@ -8,6 +8,11 @@ decay: 0.87                 # weight on each future gameweek (near-term certaint
 hit_cost: 4                 # points per extra transfer
 hit_threshold: 6.0
 min_transfer_gain: 1.5    # a transfer must beat this to be recommended; wildcard weeks are exempt
+# How hard the learned ceiling tilts the Triple Captain armband toward a player
+# who can spike, on top of his expected points. Small on purpose: it breaks ties
+# between comparable captains, it does not overrule the projection. Set 0 to
+# choose the armband on expected points alone.
+ceiling_weight: 6.0
 max_chips_in_horizon: 2          # only recommend a hit if it gains this much over the horizon
 bench_weights: [0.16, 0.11, 0.06, 0.02]
 

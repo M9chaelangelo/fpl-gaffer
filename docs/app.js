@@ -151,6 +151,7 @@ const COLS = [
   { key: "ep_next",   label: "xP",      fmt: "num" },
   { key: "ep_horizon",label: "xP 5gw",  fmt: "num" },
   { key: "start_prob",label: "Starts",  fmt: "pct" },
+  { key: "ceiling",   label: "Haul",    fmt: "pct" },
   { key: "xg90",      label: "xG90",    fmt: "num3" },
   { key: "xa90",      label: "xA90",    fmt: "num3" },
   { key: "own_overall", label: "Own",   fmt: "pct" },

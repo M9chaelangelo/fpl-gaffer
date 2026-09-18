@@ -20,6 +20,7 @@ def player_card(pid, proj, prof, lg_own, pack_own, elite_own, price_fc, gws):
         "ep_horizon": round(sum(p["ep"][g] for g in gws), 1),
         "fixtures": [p["opp"][g] for g in gws],
         "start_prob": p.get("p60"),
+        "ceiling": p.get("ceiling_next"),
         "exp_minutes": p["exp_min"],
         "xg90": s.get("xg90"), "xa90": s.get("xa90"),
         "shot_quality": s.get("shot_quality"),
@@ -173,4 +174,22 @@ def captain(week, proj, prof, pack_own, elite_own, gws):
         r.append(f"{s['xg90']} expected goals per 90 with "
                  f"{_fmt_pct(s.get('attacking_share'))} of his team's attack "
                  f"running through him.")
+
+    # The armband is decided by the tail, not the mean, so say what the tail is
+    # — and name the player with the bigger one when it is not him. An armband
+    # recommendation you cannot argue with is one you cannot correct.
+    gw = week["gw"]
+    haul = c.get("ceiling", {}).get(gw)
+    if haul is not None:
+        r.append(f"Hauls — 10+ points — in {_fmt_pct(haul)} of weeks like this one.")
+        rival = max(
+            (proj[q["id"]] for q in week["xi"] if q["id"] != pid
+             and proj[q["id"]].get("ceiling", {}).get(gw) is not None),
+            key=lambda q: q["ceiling"][gw], default=None)
+        if rival is not None and rival["ceiling"][gw] > haul + 0.02:
+            r.append(f"{rival['name']} actually has the higher ceiling "
+                     f"({_fmt_pct(rival['ceiling'][gw])} against {_fmt_pct(haul)}) "
+                     f"but projects {rival['ep'][gw]:.1f} to his "
+                     f"{c['ep'][gw]:.1f} — worth the armband only if you need "
+                     f"variance rather than points.")
     return {"name": c["name"], "reasons": r}
