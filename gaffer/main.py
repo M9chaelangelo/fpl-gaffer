@@ -6,7 +6,7 @@ import yaml
 
 from . import (fetch, league, projections, prices, optimise, report, timing,
                styles, elite, explain, defence, calibrate, rotation, planner,
-               webdata, wildcard)
+               webdata, wildcard, teamform)
 
 
 def resolve_names(proj, names):
@@ -96,7 +96,9 @@ def main():
         cfg.get("european_haircut", 0.12), cfg.get("midweek_haircut", 0.06))
     proj = projections.build(boot, fx, gws_long, feed, cfg["solio_weight"],
                              cfg.get("form_weight", 0.30),
-                             cfg.get("strength_weight", 0.5), mins_mult)
+                             cfg.get("strength_weight", 0.5), mins_mult,
+                             cfg.get("team_form_weight", 0.0),
+                             cfg.get("team_form_half_life", 2.5))
     if cfg.get("calibrate_to_solio", True):
         scale, n = calibrate.fit(proj, feed, gw)
         if n:
@@ -228,9 +230,21 @@ def main():
         except ValueError as e:
             print(f"  !! wildcard draft failed: {e}")
 
-    atk, _ = projections.team_strength(boot)
+    atk, dfn = projections.team_strength(
+        boot, fixtures=fx, form_weight=cfg.get("team_form_weight", 0.0),
+        half_life=cfg.get("team_form_half_life", 2.5))
     lams, tmn = defence.lambdas(boot, fx, gws, atk, fetch.solio(cfg["solio_url"]))
     cs_table = defence.table(boot, lams, tmn, gw, limit=12)
+
+    # Who is actually in form, so the page can be checked against what you
+    # watched on Saturday rather than only acted on.
+    season_atk, season_dfn = projections.team_strength(boot)
+    fa, fd = teamform.recent(boot, fx, season_atk, season_dfn,
+                             half_life=cfg.get("team_form_half_life", 2.5))
+    form_table = teamform.table(boot, fa, fd)
+    if form_table:
+        hot = ", ".join(f"{r['team']} {r['form']:.2f}" for r in form_table[:4])
+        print(f"  team form (weight {cfg.get('team_form_weight', 0.0)}): {hot}")
 
     prof = styles.profile(boot)
     try:
@@ -292,7 +306,8 @@ def main():
     # the app breaks or the browser is ancient.
     data = webdata.build(proj, prof, lg, elite_own, pf, gws, squad_ids, weeks,
                          deadline, gw, planner=graded, hit_verdict=verdict,
-                         clean_sheets=cs_table, wildcard=wc_draft)
+                         clean_sheets=cs_table, wildcard=wc_draft,
+                         team_form=form_table)
     webdata.write(data, cfg["out_dir"])
 
     out = os.path.join(cfg["out_dir"], "report.html")
@@ -300,7 +315,8 @@ def main():
                    "prices": watch, "hit_verdict": verdict, "flagged": flagged,
                    "pack_own": lg["pack_own"], "league_line": line,
                    "rationale": rationale, "clean_sheets": cs_table,
-                   "planner": graded, "wildcard": wc_draft, "proj": proj}, out)
+                   "planner": graded, "wildcard": wc_draft, "proj": proj,
+                   "team_form": form_table}, out)
     json.dump({"gw": gw, "generated": datetime.now(timezone.utc).isoformat(),
                "weeks": [{k: v for k, v in w.items()
                           if k in ("gw", "in", "out", "hits", "chip", "ep")}

@@ -32,8 +32,19 @@ rival_depth: 10             # how many teams above you count as "the pack"
 # --- projections -------------------------------------------------------------
 solio_url: https://fpl.solioanalytics.com/api/data/latest.json
 solio_weight: 0.7         # trust Solio over the local model where both exist
-form_weight: 0.30         # weight on recent form vs season-long rate
+form_weight: 0.30         # weight on a PLAYER's recent form vs his season rate
 strength_weight: 0.5      # weight on measured team attack/defence vs FPL fixture rating
+# And the same idea for the TEAM. Season-long expected goals move slowly: a side
+# that was poor in August and has been excellent since scores as mediocre until
+# the average catches up, by which time the run is over. This folds recent
+# results in on top — opponent-adjusted, so it cannot just reward an easy run,
+# and time-decayed, so the last match counts most.
+#
+# Keep it modest. One result is a large share of the evidence this early, and
+# reading a 3-0 as a new permanent truth is how a wildcard gets spent on a team
+# that was having a good afternoon. 0 turns it off entirely.
+team_form_weight: 0.35
+team_form_half_life: 2.5  # in matches: at 2.5 the game before last counts ~3/4
 
 # --- output ------------------------------------------------------------------
 out_dir: docs

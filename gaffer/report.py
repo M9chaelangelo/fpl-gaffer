@@ -245,6 +245,22 @@ def render(ctx, path):
                      "horizon, holding the other fourteen fixed. A number near "
                      "zero is a coin toss — take the player you want to watch.</p>")
 
+    if ctx.get("team_form"):
+        p.append("<h2>Team form</h2><table><tr><th>Team</th>"
+                 "<th class=n>Attack</th><th class=n>Defence</th>"
+                 "<th class=n>Form</th></tr>")
+        for r in ctx["team_form"][:10]:
+            cls = "rise" if r["form"] > 1.03 else ("fall" if r["form"] < 0.97 else "")
+            p.append(f"<tr><td>{_esc(r['team'])}</td>"
+                     f"<td class=n>{r['attack']:.2f}</td>"
+                     f"<td class=n>{r['defence']:.2f}</td>"
+                     f"<td class='n {cls}'>{r['form']:.2f}</td></tr>")
+        p.append("</table><p class=note>Goals scored and conceded over the "
+                 "last few matches against what the fixtures warranted, "
+                 "time-decayed and opponent-adjusted. 1.00 is exactly to "
+                 "expectation. Defence above 1.00 means leakier than it "
+                 "should have been.</p>")
+
     p.append("<h2>Nobody in your league owns these</h2><table>"
              "<tr><th>Player</th><th class=n>£</th><th class=n>Proj</th>"
              "<th class=n>League</th><th class=n>Pack</th></tr>")

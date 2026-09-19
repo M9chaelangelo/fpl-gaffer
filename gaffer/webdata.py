@@ -57,7 +57,7 @@ METRICS = [
 
 def build(proj, prof, lg, elite_own, price_fc, gws, squad_ids, weeks,
           deadline, gw, planner=None, hit_verdict=None, clean_sheets=None,
-          wildcard=None):
+          wildcard=None, team_form=None):
     """Assemble the page's dataset."""
     cards = {}
     for pid in proj:
@@ -118,6 +118,10 @@ def build(proj, prof, lg, elite_own, price_fc, gws, squad_ids, weeks,
         # already in `players`, and shipping them twice would add a third to
         # the file for nothing.
         "wildcard": wildcard,
+        # Attack and defence over the last few matches, opponent-adjusted.
+        # The one number on the page a human can check against what they
+        # actually watched on Saturday.
+        "team_form": team_form or [],
         "clean_sheets": clean_sheets or [],
         "planner": planner,
         "league": {

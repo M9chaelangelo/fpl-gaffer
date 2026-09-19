@@ -271,6 +271,21 @@ function renderWildcard() {
   // with an honest zero baseline flattens the whole run into one horizontal
   // stroke — which is precisely the comparison this chart exists to make.
   // Direct-labelled bars keep the baseline and still show the difference.
+  const form = (S.data.team_form || []).filter((r) => wc.squad
+    .some((id) => byId(id).team === r.team));
+  if (form.length) {
+    root.append(chartCard(
+      "Form of the clubs you are buying",
+      barChart(form.sort((a, b) => b.form - a.form).map((r) => ({
+        label: r.team, value: r.form,
+        sub: `${wc.squad.filter((id) => byId(id).team === r.team).length} player(s)`,
+      })), { unit: "×", series: "var(--series-3)" }),
+      "Goals scored and conceded over the last few matches against what the " +
+      "fixtures warranted, time-decayed. 1.00 is exactly to expectation — " +
+      "above it the side is over-performing, below it under."
+    ));
+  }
+
   root.append(chartCard(
     "The run you are buying",
     barChart(wc.weeks.map((w) => ({
