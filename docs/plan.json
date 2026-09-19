@@ -1,28 +1,26 @@
 {
  "gw": 6,
- "generated": "2026-09-19T15:07:09.794384+00:00",
+ "generated": "2026-09-19T15:43:40.964074+00:00",
  "weeks": [
   {
    "gw": 6,
    "in": [
     "B.Fernandes",
     "Saka",
+    "Gro\u00df",
     "Schade",
     "Janelt",
-    "Scott",
     "De Cuyper",
     "Davis",
     "Tarkowski",
-    "Van Hecke",
+    "Pickford",
     "Tzolakis",
-    "Trafford",
     "Barry",
-    "McBurnie"
+    "Kostoulas"
    ],
    "out": [
     "Rogers",
     "Gibbs-White",
-    "Egan",
     "Kinsky",
     "Maguire",
     "Lammens",
@@ -36,7 +34,7 @@
    ],
    "hits": 0,
    "chip": "Wildcard",
-   "ep": 69.3
+   "ep": 71.1
   },
   {
    "gw": 7,
@@ -44,7 +42,7 @@
    "out": [],
    "hits": 0,
    "chip": "Triple Captain",
-   "ep": 71.7
+   "ep": 75.2
   },
   {
    "gw": 8,
@@ -52,15 +50,19 @@
    "out": [],
    "hits": 0,
    "chip": null,
-   "ep": 70.9
+   "ep": 71.7
   },
   {
    "gw": 9,
-   "in": [],
-   "out": [],
+   "in": [
+    "Scott"
+   ],
+   "out": [
+    "Gro\u00df"
+   ],
    "hits": 0,
    "chip": null,
-   "ep": 74.7
+   "ep": 74.9
   },
   {
    "gw": 10,
@@ -68,32 +70,32 @@
    "out": [],
    "hits": 0,
    "chip": null,
-   "ep": 75.6
+   "ep": 76.9
   }
  ],
- "hit_verdict": "Taking a hit gains about 4.7 points over 5 gameweeks. Not worth it \u2014 the bar is 6.0. Roll the transfer instead.",
+ "hit_verdict": "Taking a hit gains about -1.8 points over 5 gameweeks. Not worth it \u2014 the bar is 6.0. Roll the transfer instead.",
  "gems": [
   {
    "name": "Saka",
    "team": "ARS",
    "price": 9.5,
-   "proj": 7.339,
+   "proj": 7.404,
    "league": 0.09523809523809523,
-   "pack": 0.2
+   "pack": 0.3
   },
   {
    "name": "Schade",
    "team": "BRE",
    "price": 6.1,
-   "proj": 5.683,
+   "proj": 5.723,
    "league": 0.023809523809523808,
-   "pack": 0.0
+   "pack": 0.1
   },
   {
    "name": "Janelt",
    "team": "BRE",
    "price": 5.0,
-   "proj": 5.463,
+   "proj": 5.483,
    "league": 0.0,
    "pack": 0.0
   },
@@ -101,7 +103,7 @@
    "name": "Gabriel",
    "team": "ARS",
    "price": 8.0,
-   "proj": 5.461,
+   "proj": 5.476,
    "league": 0.09523809523809523,
    "pack": 0.2
   },
@@ -109,7 +111,7 @@
    "name": "Davis",
    "team": "IPS",
    "price": 4.0,
-   "proj": 5.181,
+   "proj": 5.373,
    "league": 0.07142857142857142,
    "pack": 0.1
   },
@@ -117,79 +119,47 @@
    "name": "Rice",
    "team": "ARS",
    "price": 7.4,
-   "proj": 5.053,
+   "proj": 5.104,
    "league": 0.047619047619047616,
    "pack": 0.0
+  },
+  {
+   "name": "Barnes",
+   "team": "NEW",
+   "price": 6.1,
+   "proj": 5.012,
+   "league": 0.09523809523809523,
+   "pack": 0.2
   },
   {
    "name": "Havertz",
    "team": "ARS",
    "price": 7.6,
-   "proj": 4.952,
+   "proj": 4.991,
    "league": 0.047619047619047616,
-   "pack": 0.0
-  },
-  {
-   "name": "Xhaka",
-   "team": "SUN",
-   "price": 5.5,
-   "proj": 4.889,
-   "league": 0.023809523809523808,
    "pack": 0.0
   },
   {
    "name": "Tarkowski",
    "team": "EVE",
    "price": 6.1,
-   "proj": 4.865,
+   "proj": 4.988,
    "league": 0.07142857142857142,
    "pack": 0.1
-  },
-  {
-   "name": "Barnes",
-   "team": "NEW",
-   "price": 6.1,
-   "proj": 4.811,
-   "league": 0.09523809523809523,
-   "pack": 0.2
-  },
-  {
-   "name": "Kelleher",
-   "team": "BRE",
-   "price": 5.0,
-   "proj": 4.807,
-   "league": 0.023809523809523808,
-   "pack": 0.0
   },
   {
    "name": "Tzolakis",
    "team": "HUL",
    "price": 4.6,
-   "proj": 4.631,
+   "proj": 4.891,
    "league": 0.047619047619047616,
    "pack": 0.0
   },
   {
-   "name": "Branthwaite",
+   "name": "Pickford",
    "team": "EVE",
    "price": 5.5,
-   "proj": 4.566,
-   "league": 0.07142857142857142,
-   "pack": 0.1
-  },
-  {
-   "name": "Dewsbury-Hall",
-   "team": "EVE",
-   "price": 6.6,
-   "proj": 4.534,
-   "league": 0.07142857142857142,
-   "pack": 0.1
-  },
-  {
-   "name": "Gu\u00e9hi",
-   "team": "MCI",
-   "price": 6.0,
-   "proj": 4.51,
+   "proj": 4.747,
    "league": 0.047619047619047616,
    "pack": 0.0
   },
@@ -197,40 +167,72 @@
    "name": "Enciso",
    "team": "IPS",
    "price": 5.5,
-   "proj": 4.462,
+   "proj": 4.74,
    "league": 0.0,
    "pack": 0.0
   },
   {
-   "name": "Murillo",
-   "team": "NFO",
+   "name": "Xhaka",
+   "team": "SUN",
    "price": 5.5,
-   "proj": 4.419,
-   "league": 0.07142857142857142,
-   "pack": 0.1
+   "proj": 4.74,
+   "league": 0.023809523809523808,
+   "pack": 0.0
   },
   {
-   "name": "Thiago",
-   "team": "BRE",
-   "price": 7.8,
-   "proj": 4.398,
+   "name": "L.Miley",
+   "team": "NEW",
+   "price": 5.5,
+   "proj": 4.677,
    "league": 0.0,
    "pack": 0.0
   },
   {
-   "name": "Pickford",
+   "name": "Branthwaite",
    "team": "EVE",
    "price": 5.5,
-   "proj": 4.337,
-   "league": 0.047619047619047616,
+   "proj": 4.667,
+   "league": 0.07142857142857142,
+   "pack": 0.2
+  },
+  {
+   "name": "Kelleher",
+   "team": "BRE",
+   "price": 5.0,
+   "proj": 4.619,
+   "league": 0.023809523809523808,
    "pack": 0.0
+  },
+  {
+   "name": "Dewsbury-Hall",
+   "team": "EVE",
+   "price": 6.6,
+   "proj": 4.532,
+   "league": 0.07142857142857142,
+   "pack": 0.2
   },
   {
    "name": "Tavernier",
    "team": "BOU",
    "price": 6.1,
-   "proj": 4.327,
+   "proj": 4.518,
    "league": 0.047619047619047616,
+   "pack": 0.1
+  },
+  {
+   "name": "Gu\u00e9hi",
+   "team": "MCI",
+   "price": 6.0,
+   "proj": 4.491,
+   "league": 0.047619047619047616,
+   "pack": 0.0
+  },
+  {
+   "name": "Thiago",
+   "team": "BRE",
+   "price": 7.8,
+   "proj": 4.413,
+   "league": 0.0,
    "pack": 0.0
   }
  ],
@@ -241,11 +243,10 @@
    "captain": {
     "name": "B.Fernandes",
     "reasons": [
-     "Highest projection in your eleven at 7.8 points, against TOT(H).",
+     "Highest projection in your eleven at 7.9 points, against TOT(H).",
      "Only 10% of the teams above you own him, so every point he scores is a point of ground gained, doubled.",
-     "Elite ownership is 34% \u2014 captaining him is a differential against the best managers in the world, not just against your league.",
      "0.57 expected goals per 90 with 25% of his team's attack running through him.",
-     "Hauls \u2014 10+ points \u2014 in 26% of weeks like this one."
+     "Hauls \u2014 10+ points \u2014 in 25% of weeks like this one."
     ]
    },
    "transfers": [
@@ -270,62 +271,64 @@
       "xg90": 0.163,
       "xa90": 0.132,
       "shot_quality": 0.0069,
-      "attacking_share": 0.092,
+      "attacking_share": 0.088,
       "defcon90": 3.5,
       "defcon_prob": 0.0,
-      "cs_prob": 0.265,
+      "cs_prob": 0.286,
       "setpiece": 0.0,
       "own_league": 0.047619047619047616,
       "own_pack": 0.0,
       "own_elite": 0.01,
       "own_overall": 0.057,
       "price_direction": "fall",
-      "net_transfers": -41355,
+      "net_transfers": -47508,
       "status": "i",
       "news": "Unspecified injury - Unknown return date"
      },
      "in": {
-      "name": "Scott",
-      "team": "BOU",
+      "name": "Gro\u00df",
+      "team": "BHA",
       "pos": "MID",
-      "price": 6.1,
-      "ep_next": 4.17,
-      "ep_horizon": 27.7,
+      "price": 5.7,
+      "ep_next": 5.53,
+      "ep_horizon": 30.9,
       "fixtures": [
-       "CHE(A)",
-       "SUN(H)",
-       "MUN(A)",
-       "LEE(H)",
-       "IPS(A)"
+       "SUN(A)",
+       "CRY(H)",
+       "LIV(A)",
+       "MCI(A)",
+       "BRE(H)"
       ],
-      "start_prob": 0.851,
-      "ceiling": 0.059,
-      "exp_minutes": 75,
-      "xg90": 0.131,
-      "xa90": 0.088,
-      "shot_quality": 0.0121,
-      "attacking_share": 0.093,
-      "defcon90": 13.2,
-      "defcon_prob": 0.661,
-      "cs_prob": 0.277,
-      "setpiece": 0.0,
-      "own_league": 0.023809523809523808,
-      "own_pack": 0.0,
-      "own_elite": 0.01,
-      "own_overall": 0.057999999999999996,
-      "price_direction": "hold",
-      "net_transfers": 94,
+      "start_prob": 0.923,
+      "ceiling": 0.0817,
+      "exp_minutes": 88,
+      "xg90": 0.362,
+      "xa90": 0.176,
+      "shot_quality": 0.026,
+      "attacking_share": 0.164,
+      "defcon90": 5.1,
+      "defcon_prob": 0.006,
+      "cs_prob": 0.247,
+      "setpiece": 0.705,
+      "own_league": 0.2619047619047619,
+      "own_pack": 0.5,
+      "own_elite": 0.67,
+      "own_overall": 0.222,
+      "price_direction": "rise",
+      "net_transfers": 108602,
       "status": "a",
       "news": ""
      },
      "reasons": [
-      "Projected +25.0 points across the horizon (27.7 vs 2.7).",
-      "More certain to play: 85% chance of 60+ minutes against 72%.",
-      "Shoots from better positions \u2014 expected goals per unit of threat 0.0121 vs 0.0069, which means his attempts come from inside the box rather than outside it.",
-      "66% chance of hitting the defensive contribution threshold, worth 1.3 points a game on its own.",
-      "13.2 defensive actions per 90 \u2014 a repeatable floor of defensive contribution points independent of form.",
+      "Projected +28.2 points across the horizon (30.9 vs 2.7).",
+      "More certain to play: 92% chance of 60+ minutes against 72%.",
+      "Shoots from better positions \u2014 expected goals per unit of threat 0.0260 vs 0.0069, which means his attempts come from inside the box rather than outside it.",
+      "On set pieces, worth about +0.70 points per 90 before anything else happens.",
+      "Reduces risk rather than adding leverage \u2014 50% of your pack already own him.",
+      "The world's best managers are ahead of the crowd on him: 67% elite ownership against 22% overall.",
       "The man leaving is flagged: Unspecified injury - Unknown return date.",
-      "He is also falling in price (-41,355 net transfers), so holding costs team value too."
+      "He is also falling in price (-47,508 net transfers), so holding costs team value too.",
+      "The incoming player is rising (+108,602 net), so acting now is cheaper than acting later."
      ]
     },
     {
@@ -334,8 +337,8 @@
       "team": "NFO",
       "pos": "MID",
       "price": 8.0,
-      "ep_next": 5.43,
-      "ep_horizon": 23.7,
+      "ep_next": 5.44,
+      "ep_horizon": 23.1,
       "fixtures": [
        "CRY(A)",
        "ARS(H)",
@@ -352,14 +355,14 @@
       "attacking_share": 0.234,
       "defcon90": 4.8,
       "defcon_prob": 0.004,
-      "cs_prob": 0.334,
+      "cs_prob": 0.299,
       "setpiece": 0.485,
       "own_league": 0.40476190476190477,
       "own_pack": 0.5,
-      "own_elite": 0.39,
+      "own_elite": 0.37,
       "own_overall": 0.16,
       "price_direction": "hold",
-      "net_transfers": 9289,
+      "net_transfers": 10113,
       "status": "a",
       "news": ""
      },
@@ -368,8 +371,8 @@
       "team": "MUN",
       "pos": "MID",
       "price": 12.0,
-      "ep_next": 7.82,
-      "ep_horizon": 40.8,
+      "ep_next": 7.85,
+      "ep_horizon": 40.7,
       "fixtures": [
        "TOT(H)",
        "LEE(A)",
@@ -378,7 +381,7 @@
        "AVL(H)"
       ],
       "start_prob": 0.84,
-      "ceiling": 0.2636,
+      "ceiling": 0.2533,
       "exp_minutes": 76,
       "xg90": 0.57,
       "xa90": 0.282,
@@ -386,19 +389,19 @@
       "attacking_share": 0.252,
       "defcon90": 5.8,
       "defcon_prob": 0.015,
-      "cs_prob": 0.414,
+      "cs_prob": 0.432,
       "setpiece": 0.705,
       "own_league": 0.30952380952380953,
       "own_pack": 0.1,
-      "own_elite": 0.34,
-      "own_overall": 0.39899999999999997,
+      "own_elite": 0.42,
+      "own_overall": 0.39799999999999996,
       "price_direction": "hold",
-      "net_transfers": -19688,
+      "net_transfers": -21513,
       "status": "a",
       "news": ""
      },
      "reasons": [
-      "Projected +17.1 points across the horizon (40.8 vs 23.7).",
+      "Projected +17.6 points across the horizon (40.7 vs 23.1).",
       "Shoots from better positions \u2014 expected goals per unit of threat 0.0219 vs 0.0217, which means his attempts come from inside the box rather than outside it.",
       "25% of his team's expected goal involvement runs through him.",
       "On set pieces, worth about +0.70 points per 90 before anything else happens.",
@@ -411,8 +414,8 @@
       "team": "LIV",
       "pos": "MID",
       "price": 7.3,
-      "ep_next": 2.23,
-      "ep_horizon": 12.9,
+      "ep_next": 2.15,
+      "ep_horizon": 12.6,
       "fixtures": [
        "MCI(H)",
        "BRE(A)",
@@ -429,14 +432,14 @@
       "attacking_share": 0.106,
       "defcon90": 7.6,
       "defcon_prob": 0.085,
-      "cs_prob": 0.298,
+      "cs_prob": 0.277,
       "setpiece": 0.0,
       "own_league": 0.047619047619047616,
       "own_pack": 0.0,
       "own_elite": 0.01,
       "own_overall": 0.061,
       "price_direction": "hold",
-      "net_transfers": -6384,
+      "net_transfers": -7194,
       "status": "a",
       "news": ""
      },
@@ -445,8 +448,8 @@
       "team": "BRE",
       "pos": "MID",
       "price": 6.1,
-      "ep_next": 5.68,
-      "ep_horizon": 29.0,
+      "ep_next": 5.72,
+      "ep_horizon": 28.5,
       "fixtures": [
        "AVL(A)",
        "LIV(H)",
@@ -463,22 +466,22 @@
       "attacking_share": 0.114,
       "defcon90": 6.8,
       "defcon_prob": 0.047,
-      "cs_prob": 0.352,
+      "cs_prob": 0.316,
       "setpiece": 0.051,
       "own_league": 0.023809523809523808,
-      "own_pack": 0.0,
+      "own_pack": 0.1,
       "own_elite": 0.23,
-      "own_overall": 0.081,
+      "own_overall": 0.08199999999999999,
       "price_direction": "rise",
-      "net_transfers": 55701,
+      "net_transfers": 62896,
       "status": "a",
       "news": ""
      },
      "reasons": [
-      "Projected +16.1 points across the horizon (29.0 vs 12.9).",
+      "Projected +15.9 points across the horizon (28.5 vs 12.6).",
       "Shoots from better positions \u2014 expected goals per unit of threat 0.0118 vs 0.0092, which means his attempts come from inside the box rather than outside it.",
       "On set pieces, worth about +0.05 points per 90 before anything else happens.",
-      "The incoming player is rising (+55,701 net), so acting now is cheaper than acting later."
+      "The incoming player is rising (+62,896 net), so acting now is cheaper than acting later."
      ]
     },
     {
@@ -487,8 +490,8 @@
       "team": "MCI",
       "pos": "MID",
       "price": 5.8,
-      "ep_next": 2.56,
-      "ep_horizon": 15.5,
+      "ep_next": 2.49,
+      "ep_horizon": 15.4,
       "fixtures": [
        "LIV(A)",
        "IPS(H)",
@@ -505,14 +508,14 @@
       "attacking_share": 0.048,
       "defcon90": 11.6,
       "defcon_prob": 0.489,
-      "cs_prob": 0.296,
+      "cs_prob": 0.292,
       "setpiece": 0.0,
       "own_league": 0.19047619047619047,
       "own_pack": 0.1,
-      "own_elite": 0.05,
+      "own_elite": 0.06,
       "own_overall": 0.07200000000000001,
       "price_direction": "hold",
-      "net_transfers": -13142,
+      "net_transfers": -15330,
       "status": "a",
       "news": ""
      },
@@ -521,8 +524,8 @@
       "team": "BRE",
       "pos": "MID",
       "price": 5.0,
-      "ep_next": 5.46,
-      "ep_horizon": 27.8,
+      "ep_next": 5.48,
+      "ep_horizon": 27.3,
       "fixtures": [
        "AVL(A)",
        "LIV(H)",
@@ -539,19 +542,19 @@
       "attacking_share": 0.06,
       "defcon90": 12.8,
       "defcon_prob": 0.626,
-      "cs_prob": 0.352,
+      "cs_prob": 0.316,
       "setpiece": 0.0,
       "own_league": 0.0,
       "own_pack": 0.0,
       "own_elite": 0.01,
       "own_overall": 0.025,
       "price_direction": "hold",
-      "net_transfers": 2328,
+      "net_transfers": 2147,
       "status": "a",
       "news": ""
      },
      "reasons": [
-      "Projected +12.3 points across the horizon (27.8 vs 15.5).",
+      "Projected +11.9 points across the horizon (27.3 vs 15.4).",
       "More certain to play: 92% chance of 60+ minutes against 79%.",
       "Shoots from better positions \u2014 expected goals per unit of threat 0.0118 vs 0.0040, which means his attempts come from inside the box rather than outside it.",
       "63% chance of hitting the defensive contribution threshold, worth 1.3 points a game on its own.",
@@ -560,12 +563,89 @@
     },
     {
      "out": {
+      "name": "Maguire",
+      "team": "MUN",
+      "pos": "DEF",
+      "price": 4.9,
+      "ep_next": 3.89,
+      "ep_horizon": 17.2,
+      "fixtures": [
+       "TOT(H)",
+       "LEE(A)",
+       "BOU(H)",
+       "CHE(A)",
+       "AVL(H)"
+      ],
+      "start_prob": 0.841,
+      "ceiling": 0.0326,
+      "exp_minutes": 76,
+      "xg90": 0.048,
+      "xa90": 0.107,
+      "shot_quality": 0.005,
+      "attacking_share": 0.046,
+      "defcon90": 6.5,
+      "defcon_prob": 0.123,
+      "cs_prob": 0.432,
+      "setpiece": 0.0,
+      "own_league": 0.11904761904761904,
+      "own_pack": 0.1,
+      "own_elite": 0.04,
+      "own_overall": 0.092,
+      "price_direction": "hold",
+      "net_transfers": -15727,
+      "status": "a",
+      "news": ""
+     },
+     "in": {
+      "name": "De Cuyper",
+      "team": "BHA",
+      "pos": "DEF",
+      "price": 4.9,
+      "ep_next": 5.4,
+      "ep_horizon": 26.6,
+      "fixtures": [
+       "SUN(A)",
+       "CRY(H)",
+       "LIV(A)",
+       "MCI(A)",
+       "BRE(H)"
+      ],
+      "start_prob": 0.88,
+      "ceiling": 0.0456,
+      "exp_minutes": 84,
+      "xg90": 0.338,
+      "xa90": 0.133,
+      "shot_quality": 0.0292,
+      "attacking_share": 0.134,
+      "defcon90": 2.8,
+      "defcon_prob": 0.001,
+      "cs_prob": 0.247,
+      "setpiece": 0.0,
+      "own_league": 0.21428571428571427,
+      "own_pack": 0.3,
+      "own_elite": 0.52,
+      "own_overall": 0.254,
+      "price_direction": "rise",
+      "net_transfers": 37604,
+      "status": "a",
+      "news": ""
+     },
+     "reasons": [
+      "Projected +9.4 points across the horizon (26.6 vs 17.2).",
+      "Shoots from better positions \u2014 expected goals per unit of threat 0.0292 vs 0.0050, which means his attempts come from inside the box rather than outside it.",
+      "Clean sheet odds 25% against 43% \u2014 worth -0.7 points a game before anything else.",
+      "The world's best managers are ahead of the crowd on him: 52% elite ownership against 25% overall.",
+      "The incoming player is rising (+37,604 net), so acting now is cheaper than acting later."
+     ]
+    },
+    {
+     "out": {
       "name": "Thomas",
       "team": "COV",
       "pos": "DEF",
       "price": 4.0,
-      "ep_next": 3.56,
-      "ep_horizon": 16.9,
+      "ep_next": 3.42,
+      "ep_horizon": 16.7,
       "fixtures": [
        "NEW(H)",
        "TOT(A)",
@@ -582,14 +662,14 @@
       "attacking_share": 0.094,
       "defcon90": 10.1,
       "defcon_prob": 0.556,
-      "cs_prob": 0.357,
+      "cs_prob": 0.318,
       "setpiece": 0.0,
       "own_league": 0.14285714285714285,
       "own_pack": 0.0,
       "own_elite": 0.11,
       "own_overall": 0.086,
       "price_direction": "hold",
-      "net_transfers": -4246,
+      "net_transfers": -4769,
       "status": "a",
       "news": ""
      },
@@ -598,8 +678,8 @@
       "team": "IPS",
       "pos": "DEF",
       "price": 4.0,
-      "ep_next": 5.18,
-      "ep_horizon": 25.3,
+      "ep_next": 5.37,
+      "ep_horizon": 25.4,
       "fixtures": [
        "FUL(H)",
        "MCI(A)",
@@ -607,185 +687,31 @@
        "HUL(A)",
        "BOU(H)"
       ],
-      "start_prob": 0.791,
-      "ceiling": 0.0271,
-      "exp_minutes": 83,
-      "xg90": 0.353,
-      "xa90": 0.098,
+      "start_prob": 0.955,
+      "ceiling": 0.0263,
+      "exp_minutes": 89,
+      "xg90": 0.324,
+      "xa90": 0.09,
       "shot_quality": 0.0147,
-      "attacking_share": 0.191,
+      "attacking_share": 0.18,
       "defcon90": 4.7,
-      "defcon_prob": 0.021,
-      "cs_prob": 0.313,
+      "defcon_prob": 0.022,
+      "cs_prob": 0.317,
       "setpiece": 0.0,
       "own_league": 0.07142857142857142,
       "own_pack": 0.1,
-      "own_elite": 0.09,
+      "own_elite": 0.06,
       "own_overall": 0.068,
       "price_direction": "hold",
-      "net_transfers": 7559,
+      "net_transfers": 8113,
       "status": "a",
       "news": ""
      },
      "reasons": [
-      "Projected +8.4 points across the horizon (25.3 vs 16.9).",
+      "Projected +8.7 points across the horizon (25.4 vs 16.7).",
+      "More certain to play: 96% chance of 60+ minutes against 79%.",
       "Shoots from better positions \u2014 expected goals per unit of threat 0.0147 vs 0.0090, which means his attempts come from inside the box rather than outside it.",
-      "Clean sheet odds 31% against 36% \u2014 worth -0.2 points a game before anything else."
-     ]
-    },
-    {
-     "out": {
-      "name": "Maguire",
-      "team": "MUN",
-      "pos": "DEF",
-      "price": 4.9,
-      "ep_next": 3.81,
-      "ep_horizon": 18.0,
-      "fixtures": [
-       "TOT(H)",
-       "LEE(A)",
-       "BOU(H)",
-       "CHE(A)",
-       "AVL(H)"
-      ],
-      "start_prob": 0.841,
-      "ceiling": 0.03,
-      "exp_minutes": 76,
-      "xg90": 0.048,
-      "xa90": 0.107,
-      "shot_quality": 0.005,
-      "attacking_share": 0.046,
-      "defcon90": 6.5,
-      "defcon_prob": 0.123,
-      "cs_prob": 0.414,
-      "setpiece": 0.0,
-      "own_league": 0.11904761904761904,
-      "own_pack": 0.1,
-      "own_elite": 0.05,
-      "own_overall": 0.092,
-      "price_direction": "hold",
-      "net_transfers": -14692,
-      "status": "a",
-      "news": ""
-     },
-     "in": {
-      "name": "De Cuyper",
-      "team": "BHA",
-      "pos": "DEF",
-      "price": 4.9,
-      "ep_next": 4.99,
-      "ep_horizon": 25.6,
-      "fixtures": [
-       "SUN(A)",
-       "CRY(H)",
-       "LIV(A)",
-       "MCI(A)",
-       "BRE(H)"
-      ],
-      "start_prob": 0.863,
-      "ceiling": 0.0451,
-      "exp_minutes": 78,
-      "xg90": 0.364,
-      "xa90": 0.107,
-      "shot_quality": 0.0289,
-      "attacking_share": 0.133,
-      "defcon90": 2.9,
-      "defcon_prob": 0.001,
-      "cs_prob": 0.237,
-      "setpiece": 0.0,
-      "own_league": 0.21428571428571427,
-      "own_pack": 0.3,
-      "own_elite": 0.51,
-      "own_overall": 0.253,
-      "price_direction": "rise",
-      "net_transfers": 30055,
-      "status": "a",
-      "news": ""
-     },
-     "reasons": [
-      "Projected +7.6 points across the horizon (25.6 vs 18.0).",
-      "Shoots from better positions \u2014 expected goals per unit of threat 0.0289 vs 0.0050, which means his attempts come from inside the box rather than outside it.",
-      "Clean sheet odds 24% against 41% \u2014 worth -0.7 points a game before anything else.",
-      "The world's best managers are ahead of the crowd on him: 51% elite ownership against 25% overall.",
-      "The incoming player is rising (+30,055 net), so acting now is cheaper than acting later."
-     ]
-    },
-    {
-     "out": {
-      "name": "Rogers",
-      "team": "CHE",
-      "pos": "MID",
-      "price": 7.7,
-      "ep_next": 5.41,
-      "ep_horizon": 24.9,
-      "fixtures": [
-       "BOU(H)",
-       "EVE(A)",
-       "TOT(H)",
-       "MUN(H)",
-       "SUN(A)"
-      ],
-      "start_prob": 0.903,
-      "ceiling": 0.0712,
-      "exp_minutes": 88,
-      "xg90": 0.354,
-      "xa90": 0.253,
-      "shot_quality": 0.0156,
-      "attacking_share": 0.25,
-      "defcon90": 6.4,
-      "defcon_prob": 0.03,
-      "cs_prob": 0.329,
-      "setpiece": 0.0,
-      "own_league": 0.40476190476190477,
-      "own_pack": 0.7,
-      "own_elite": 0.59,
-      "own_overall": 0.401,
-      "price_direction": "hold",
-      "net_transfers": 15058,
-      "status": "a",
-      "news": ""
-     },
-     "in": {
-      "name": "Saka",
-      "team": "ARS",
-      "pos": "MID",
-      "price": 9.5,
-      "ep_next": 7.34,
-      "ep_horizon": 31.1,
-      "fixtures": [
-       "LEE(H)",
-       "NFO(A)",
-       "EVE(H)",
-       "LIV(A)",
-       "HUL(H)"
-      ],
-      "start_prob": 0.859,
-      "ceiling": 0.1302,
-      "exp_minutes": 79,
-      "xg90": 0.78,
-      "xa90": 0.137,
-      "shot_quality": 0.0162,
-      "attacking_share": 0.312,
-      "defcon90": 6.8,
-      "defcon_prob": 0.047,
-      "cs_prob": 0.461,
-      "setpiece": 0.365,
-      "own_league": 0.09523809523809523,
-      "own_pack": 0.2,
-      "own_elite": 0.29,
-      "own_overall": 0.132,
-      "price_direction": "hold",
-      "net_transfers": 13462,
-      "status": "a",
-      "news": ""
-     },
-     "reasons": [
-      "Projected +6.2 points across the horizon (31.1 vs 24.9).",
-      "Shoots from better positions \u2014 expected goals per unit of threat 0.0162 vs 0.0156, which means his attempts come from inside the box rather than outside it.",
-      "31% of his team's expected goal involvement runs through him.",
-      "On set pieces, worth about +0.36 points per 90 before anything else happens.",
-      "Leverage: 70% of the teams above you own the man you are selling, 20% own the one you are buying. You gain ground when he returns.",
-      "The world's best managers are ahead of the crowd on him: 29% elite ownership against 13% overall."
+      "Clean sheet odds 32% against 32% \u2014 worth -0.0 points a game before anything else."
      ]
     },
     {
@@ -794,8 +720,8 @@
       "team": "NFO",
       "pos": "DEF",
       "price": 5.0,
-      "ep_next": 3.84,
-      "ep_horizon": 17.6,
+      "ep_next": 3.67,
+      "ep_horizon": 16.8,
       "fixtures": [
        "CRY(A)",
        "ARS(H)",
@@ -812,14 +738,14 @@
       "attacking_share": 0.065,
       "defcon90": 6.8,
       "defcon_prob": 0.145,
-      "cs_prob": 0.334,
+      "cs_prob": 0.299,
       "setpiece": 0.0,
       "own_league": 0.14285714285714285,
       "own_pack": 0.1,
-      "own_elite": 0.21,
+      "own_elite": 0.16,
       "own_overall": 0.091,
       "price_direction": "hold",
-      "net_transfers": -1086,
+      "net_transfers": -1417,
       "status": "a",
       "news": ""
      },
@@ -828,8 +754,8 @@
       "team": "EVE",
       "pos": "DEF",
       "price": 6.1,
-      "ep_next": 4.87,
-      "ep_horizon": 23.6,
+      "ep_next": 4.99,
+      "ep_horizon": 25.0,
       "fixtures": [
        "HUL(A)",
        "CHE(H)",
@@ -837,183 +763,110 @@
        "NEW(A)",
        "COV(H)"
       ],
-      "start_prob": 0.862,
+      "start_prob": 0.936,
       "ceiling": 0.0527,
-      "exp_minutes": 83,
-      "xg90": 0.04,
-      "xa90": 0.007,
+      "exp_minutes": 89,
+      "xg90": 0.037,
+      "xa90": 0.008,
       "shot_quality": 0.0062,
-      "attacking_share": 0.023,
-      "defcon90": 9.8,
-      "defcon_prob": 0.514,
-      "cs_prob": 0.353,
+      "attacking_share": 0.021,
+      "defcon90": 10.0,
+      "defcon_prob": 0.539,
+      "cs_prob": 0.345,
       "setpiece": 0.0,
       "own_league": 0.07142857142857142,
       "own_pack": 0.1,
-      "own_elite": 0.33,
-      "own_overall": 0.141,
+      "own_elite": 0.6,
+      "own_overall": 0.142,
       "price_direction": "hold",
-      "net_transfers": 5909,
+      "net_transfers": 9790,
       "status": "a",
       "news": ""
      },
      "reasons": [
-      "Projected +6.0 points across the horizon (23.6 vs 17.6).",
-      "Clean sheet odds 35% against 33% \u2014 worth +0.1 points a game before anything else.",
-      "51% chance of hitting the defensive contribution threshold, worth 1.0 points a game on its own.",
-      "The world's best managers are ahead of the crowd on him: 33% elite ownership against 14% overall."
+      "Projected +8.2 points across the horizon (25.0 vs 16.8).",
+      "More certain to play: 94% chance of 60+ minutes against 85%.",
+      "Clean sheet odds 34% against 30% \u2014 worth +0.2 points a game before anything else.",
+      "54% chance of hitting the defensive contribution threshold, worth 1.1 points a game on its own.",
+      "10.0 defensive actions per 90 \u2014 a repeatable floor of defensive contribution points independent of form.",
+      "The world's best managers are ahead of the crowd on him: 60% elite ownership against 14% overall."
      ]
     },
     {
      "out": {
-      "name": "Kinsky",
-      "team": "TOT",
-      "pos": "GKP",
-      "price": 4.5,
-      "ep_next": 3.48,
-      "ep_horizon": 18.8,
+      "name": "Rogers",
+      "team": "CHE",
+      "pos": "MID",
+      "price": 7.7,
+      "ep_next": 5.48,
+      "ep_horizon": 25.0,
       "fixtures": [
-       "MUN(A)",
-       "COV(H)",
-       "CHE(A)",
-       "CRY(H)",
-       "LEE(A)"
+       "BOU(H)",
+       "EVE(A)",
+       "TOT(H)",
+       "MUN(H)",
+       "SUN(A)"
       ],
-      "start_prob": 0.926,
-      "ceiling": 0.034,
-      "exp_minutes": 90,
-      "xg90": 0.0,
-      "xa90": 0.0,
-      "shot_quality": null,
-      "attacking_share": 0.0,
-      "defcon90": 0.0,
-      "defcon_prob": 0.0,
-      "cs_prob": 0.199,
+      "start_prob": 0.903,
+      "ceiling": 0.0712,
+      "exp_minutes": 88,
+      "xg90": 0.354,
+      "xa90": 0.253,
+      "shot_quality": 0.0156,
+      "attacking_share": 0.25,
+      "defcon90": 6.4,
+      "defcon_prob": 0.03,
+      "cs_prob": 0.289,
       "setpiece": 0.0,
-      "own_league": 0.4523809523809524,
+      "own_league": 0.40476190476190477,
       "own_pack": 0.6,
-      "own_elite": 0.3,
-      "own_overall": 0.182,
-      "price_direction": "hold",
-      "net_transfers": -13866,
+      "own_elite": 0.53,
+      "own_overall": 0.401,
+      "price_direction": "rise",
+      "net_transfers": 15809,
       "status": "a",
       "news": ""
      },
      "in": {
-      "name": "Tzolakis",
-      "team": "HUL",
-      "pos": "GKP",
-      "price": 4.6,
-      "ep_next": 4.63,
-      "ep_horizon": 21.6,
+      "name": "Saka",
+      "team": "ARS",
+      "pos": "MID",
+      "price": 9.5,
+      "ep_next": 7.4,
+      "ep_horizon": 31.3,
       "fixtures": [
+       "LEE(H)",
+       "NFO(A)",
        "EVE(H)",
-       "FUL(A)",
-       "BRE(H)",
-       "IPS(H)",
-       "ARS(A)"
+       "LIV(A)",
+       "HUL(H)"
       ],
-      "start_prob": 0.874,
-      "ceiling": 0.0308,
-      "exp_minutes": 83,
-      "xg90": 0.0,
-      "xa90": 0.0,
-      "shot_quality": null,
-      "attacking_share": 0.0,
-      "defcon90": 0.0,
-      "defcon_prob": 0.0,
-      "cs_prob": 0.362,
-      "setpiece": 0.0,
-      "own_league": 0.047619047619047616,
-      "own_pack": 0.0,
-      "own_elite": 0.03,
-      "own_overall": 0.115,
-      "price_direction": "hold",
-      "net_transfers": 6367,
-      "status": "a",
-      "news": ""
-     },
-     "reasons": [
-      "Projected +2.8 points across the horizon (21.6 vs 18.8).",
-      "Clean sheet odds 36% against 20% \u2014 worth +0.7 points a game before anything else.",
-      "Leverage: 60% of the teams above you own the man you are selling, 0% own the one you are buying. You gain ground when he returns."
-     ]
-    },
-    {
-     "out": {
-      "name": "Isak",
-      "team": "LIV",
-      "pos": "FWD",
-      "price": 9.1,
-      "ep_next": 3.8,
-      "ep_horizon": 16.8,
-      "fixtures": [
-       "MCI(H)",
-       "BRE(A)",
-       "BHA(H)",
-       "ARS(H)",
-       "CRY(A)"
-      ],
-      "start_prob": 0.845,
-      "ceiling": 0.1266,
-      "exp_minutes": 57,
-      "xg90": 0.754,
-      "xa90": 0.016,
-      "shot_quality": 0.0159,
-      "attacking_share": 0.268,
-      "defcon90": 1.6,
-      "defcon_prob": 0.0,
-      "cs_prob": 0.298,
-      "setpiece": 0.041,
-      "own_league": 0.21428571428571427,
+      "start_prob": 0.895,
+      "ceiling": 0.1085,
+      "exp_minutes": 85,
+      "xg90": 0.692,
+      "xa90": 0.164,
+      "shot_quality": 0.0157,
+      "attacking_share": 0.287,
+      "defcon90": 6.7,
+      "defcon_prob": 0.041,
+      "cs_prob": 0.405,
+      "setpiece": 0.365,
+      "own_league": 0.09523809523809523,
       "own_pack": 0.3,
-      "own_elite": 0.16,
-      "own_overall": 0.21899999999999997,
+      "own_elite": 0.27,
+      "own_overall": 0.132,
       "price_direction": "hold",
-      "net_transfers": -1651,
-      "status": "a",
-      "news": ""
-     },
-     "in": {
-      "name": "Barry",
-      "team": "EVE",
-      "pos": "FWD",
-      "price": 5.6,
-      "ep_next": 4.6,
-      "ep_horizon": 18.8,
-      "fixtures": [
-       "HUL(A)",
-       "CHE(H)",
-       "ARS(A)",
-       "NEW(A)",
-       "COV(H)"
-      ],
-      "start_prob": 0.86,
-      "ceiling": 0.0838,
-      "exp_minutes": 78,
-      "xg90": 0.791,
-      "xa90": 0.036,
-      "shot_quality": 0.0182,
-      "attacking_share": 0.381,
-      "defcon90": 3.4,
-      "defcon_prob": 0.0,
-      "cs_prob": 0.353,
-      "setpiece": 0.292,
-      "own_league": 0.23809523809523808,
-      "own_pack": 0.2,
-      "own_elite": 0.55,
-      "own_overall": 0.079,
-      "price_direction": "hold",
-      "net_transfers": 2959,
+      "net_transfers": 14064,
       "status": "a",
       "news": ""
      },
      "reasons": [
-      "Projected +2.0 points across the horizon (18.8 vs 16.8).",
-      "Shoots from better positions \u2014 expected goals per unit of threat 0.0182 vs 0.0159, which means his attempts come from inside the box rather than outside it.",
-      "38% of his team's expected goal involvement runs through him.",
-      "On set pieces, worth about +0.29 points per 90 before anything else happens.",
-      "The world's best managers are ahead of the crowd on him: 55% elite ownership against 8% overall."
+      "Projected +6.3 points across the horizon (31.3 vs 25.0).",
+      "Shoots from better positions \u2014 expected goals per unit of threat 0.0157 vs 0.0156, which means his attempts come from inside the box rather than outside it.",
+      "29% of his team's expected goal involvement runs through him.",
+      "On set pieces, worth about +0.36 points per 90 before anything else happens.",
+      "Leverage: 60% of the teams above you own the man you are selling, 30% own the one you are buying. You gain ground when he returns."
      ]
     },
     {
@@ -1022,8 +875,8 @@
       "team": "MUN",
       "pos": "GKP",
       "price": 4.9,
-      "ep_next": 3.8,
-      "ep_horizon": 18.0,
+      "ep_next": 3.87,
+      "ep_horizon": 17.1,
       "fixtures": [
        "TOT(H)",
        "LEE(A)",
@@ -1040,98 +893,64 @@
       "attacking_share": 0.0,
       "defcon90": 0.0,
       "defcon_prob": 0.0,
-      "cs_prob": 0.414,
+      "cs_prob": 0.432,
       "setpiece": 0.0,
       "own_league": 0.14285714285714285,
       "own_pack": 0.0,
-      "own_elite": 0.01,
+      "own_elite": 0.02,
       "own_overall": 0.10300000000000001,
       "price_direction": "hold",
-      "net_transfers": -6291,
+      "net_transfers": -7200,
       "status": "a",
       "news": ""
      },
      "in": {
-      "name": "Trafford",
-      "team": "LEE",
+      "name": "Pickford",
+      "team": "EVE",
       "pos": "GKP",
-      "price": 5.0,
-      "ep_next": 3.7,
-      "ep_horizon": 19.9,
+      "price": 5.5,
+      "ep_next": 4.75,
+      "ep_horizon": 23.1,
       "fixtures": [
+       "HUL(A)",
+       "CHE(H)",
        "ARS(A)",
-       "MUN(H)",
-       "SUN(A)",
-       "BOU(A)",
-       "TOT(H)"
+       "NEW(A)",
+       "COV(H)"
       ],
-      "start_prob": 0.832,
-      "ceiling": 0.0261,
-      "exp_minutes": 76,
+      "start_prob": 0.91,
+      "ceiling": 0.0342,
+      "exp_minutes": 89,
       "xg90": 0.0,
-      "xa90": 0.0,
+      "xa90": 0.004,
       "shot_quality": null,
-      "attacking_share": 0.0,
+      "attacking_share": 0.002,
       "defcon90": 0.0,
       "defcon_prob": 0.0,
-      "cs_prob": 0.25,
+      "cs_prob": 0.345,
       "setpiece": 0.0,
-      "own_league": 0.023809523809523808,
+      "own_league": 0.047619047619047616,
       "own_pack": 0.0,
-      "own_elite": 0.03,
-      "own_overall": 0.054000000000000006,
+      "own_elite": 0.15,
+      "own_overall": 0.09,
       "price_direction": "hold",
-      "net_transfers": -1222,
+      "net_transfers": 52,
       "status": "a",
       "news": ""
      },
      "reasons": [
-      "Projected +1.9 points across the horizon (19.9 vs 18.0).",
-      "Clean sheet odds 25% against 41% \u2014 worth -0.7 points a game before anything else."
+      "Projected +6.0 points across the horizon (23.1 vs 17.1).",
+      "Clean sheet odds 34% against 43% \u2014 worth -0.3 points a game before anything else."
      ]
     },
     {
      "out": {
-      "name": "Egan",
-      "team": "HUL",
-      "pos": "DEF",
-      "price": 4.1,
-      "ep_next": 4.21,
-      "ep_horizon": 22.0,
-      "fixtures": [
-       "EVE(H)",
-       "FUL(A)",
-       "BRE(H)",
-       "IPS(H)",
-       "ARS(A)"
-      ],
-      "start_prob": 0.893,
-      "ceiling": 0.029,
-      "exp_minutes": 83,
-      "xg90": 0.009,
-      "xa90": 0.0,
-      "shot_quality": 0.005,
-      "attacking_share": 0.007,
-      "defcon90": 12.7,
-      "defcon_prob": 0.811,
-      "cs_prob": 0.362,
-      "setpiece": 0.0,
-      "own_league": 0.09523809523809523,
-      "own_pack": 0.2,
-      "own_elite": 0.09,
-      "own_overall": 0.071,
-      "price_direction": "hold",
-      "net_transfers": 4673,
-      "status": "a",
-      "news": ""
-     },
-     "in": {
-      "name": "Van Hecke",
+      "name": "Kinsky",
       "team": "TOT",
-      "pos": "DEF",
-      "price": 4.9,
-      "ep_next": 4.32,
-      "ep_horizon": 22.7,
+      "pos": "GKP",
+      "price": 4.5,
+      "ep_next": 3.33,
+      "ep_horizon": 17.9,
       "fixtures": [
        "MUN(A)",
        "COV(H)",
@@ -1139,31 +958,141 @@
        "CRY(H)",
        "LEE(A)"
       ],
-      "start_prob": 0.924,
-      "ceiling": 0.0471,
+      "start_prob": 0.926,
+      "ceiling": 0.034,
       "exp_minutes": 90,
-      "xg90": 0.11,
-      "xa90": 0.084,
-      "shot_quality": 0.0104,
-      "attacking_share": 0.108,
-      "defcon90": 8.6,
-      "defcon_prob": 0.36,
-      "cs_prob": 0.199,
+      "xg90": 0.0,
+      "xa90": 0.0,
+      "shot_quality": null,
+      "attacking_share": 0.0,
+      "defcon90": 0.0,
+      "defcon_prob": 0.0,
+      "cs_prob": 0.176,
       "setpiece": 0.0,
-      "own_league": 0.023809523809523808,
-      "own_pack": 0.0,
-      "own_elite": 0.08,
-      "own_overall": 0.067,
+      "own_league": 0.4523809523809524,
+      "own_pack": 0.5,
+      "own_elite": 0.26,
+      "own_overall": 0.182,
       "price_direction": "hold",
-      "net_transfers": -2736,
+      "net_transfers": -15703,
+      "status": "a",
+      "news": ""
+     },
+     "in": {
+      "name": "Tzolakis",
+      "team": "HUL",
+      "pos": "GKP",
+      "price": 4.6,
+      "ep_next": 4.89,
+      "ep_horizon": 22.3,
+      "fixtures": [
+       "EVE(H)",
+       "FUL(A)",
+       "BRE(H)",
+       "IPS(H)",
+       "ARS(A)"
+      ],
+      "start_prob": 0.894,
+      "ceiling": 0.0308,
+      "exp_minutes": 88,
+      "xg90": 0.0,
+      "xa90": 0.0,
+      "shot_quality": null,
+      "attacking_share": 0.0,
+      "defcon90": 0.0,
+      "defcon_prob": 0.0,
+      "cs_prob": 0.36,
+      "setpiece": 0.0,
+      "own_league": 0.047619047619047616,
+      "own_pack": 0.0,
+      "own_elite": 0.02,
+      "own_overall": 0.11599999999999999,
+      "price_direction": "hold",
+      "net_transfers": 7960,
       "status": "a",
       "news": ""
      },
      "reasons": [
-      "Projected +0.7 points across the horizon (22.7 vs 22.0).",
-      "Shoots from better positions \u2014 expected goals per unit of threat 0.0104 vs 0.0050, which means his attempts come from inside the box rather than outside it.",
-      "Clean sheet odds 20% against 36% \u2014 worth -0.7 points a game before anything else.",
-      "36% chance of hitting the defensive contribution threshold, worth 0.7 points a game on its own."
+      "Projected +4.4 points across the horizon (22.3 vs 17.9).",
+      "Clean sheet odds 36% against 18% \u2014 worth +0.7 points a game before anything else.",
+      "Leverage: 50% of the teams above you own the man you are selling, 0% own the one you are buying. You gain ground when he returns."
+     ]
+    },
+    {
+     "out": {
+      "name": "Isak",
+      "team": "LIV",
+      "pos": "FWD",
+      "price": 9.1,
+      "ep_next": 3.78,
+      "ep_horizon": 16.6,
+      "fixtures": [
+       "MCI(H)",
+       "BRE(A)",
+       "BHA(H)",
+       "ARS(H)",
+       "CRY(A)"
+      ],
+      "start_prob": 0.845,
+      "ceiling": 0.1266,
+      "exp_minutes": 57,
+      "xg90": 0.754,
+      "xa90": 0.016,
+      "shot_quality": 0.0159,
+      "attacking_share": 0.268,
+      "defcon90": 1.6,
+      "defcon_prob": 0.0,
+      "cs_prob": 0.277,
+      "setpiece": 0.041,
+      "own_league": 0.21428571428571427,
+      "own_pack": 0.3,
+      "own_elite": 0.17,
+      "own_overall": 0.21899999999999997,
+      "price_direction": "hold",
+      "net_transfers": -2709,
+      "status": "a",
+      "news": ""
+     },
+     "in": {
+      "name": "Barry",
+      "team": "EVE",
+      "pos": "FWD",
+      "price": 5.6,
+      "ep_next": 4.52,
+      "ep_horizon": 18.9,
+      "fixtures": [
+       "HUL(A)",
+       "CHE(H)",
+       "ARS(A)",
+       "NEW(A)",
+       "COV(H)"
+      ],
+      "start_prob": 0.865,
+      "ceiling": 0.0812,
+      "exp_minutes": 83,
+      "xg90": 0.786,
+      "xa90": 0.033,
+      "shot_quality": 0.0198,
+      "attacking_share": 0.352,
+      "defcon90": 3.1,
+      "defcon_prob": 0.0,
+      "cs_prob": 0.345,
+      "setpiece": 0.292,
+      "own_league": 0.23809523809523808,
+      "own_pack": 0.2,
+      "own_elite": 0.4,
+      "own_overall": 0.079,
+      "price_direction": "hold",
+      "net_transfers": 5635,
+      "status": "a",
+      "news": ""
+     },
+     "reasons": [
+      "Projected +2.3 points across the horizon (18.9 vs 16.6).",
+      "Shoots from better positions \u2014 expected goals per unit of threat 0.0198 vs 0.0159, which means his attempts come from inside the box rather than outside it.",
+      "35% of his team's expected goal involvement runs through him.",
+      "On set pieces, worth about +0.29 points per 90 before anything else happens.",
+      "The world's best managers are ahead of the crowd on him: 40% elite ownership against 8% overall."
      ]
     },
     {
@@ -1172,7 +1101,7 @@
       "team": "CHE",
       "pos": "FWD",
       "price": 7.8,
-      "ep_next": 4.32,
+      "ep_next": 4.37,
       "ep_horizon": 16.9,
       "fixtures": [
        "BOU(H)",
@@ -1190,58 +1119,57 @@
       "attacking_share": 0.2,
       "defcon90": 2.2,
       "defcon_prob": 0.0,
-      "cs_prob": 0.329,
+      "cs_prob": 0.289,
       "setpiece": 0.0,
       "own_league": 0.6666666666666666,
       "own_pack": 0.8,
-      "own_elite": 0.6,
-      "own_overall": 0.6829999999999999,
+      "own_elite": 0.69,
+      "own_overall": 0.682,
       "price_direction": "fall",
-      "net_transfers": -59037,
+      "net_transfers": -66052,
       "status": "d",
       "news": "Knee injury - 75% chance of playing"
      },
      "in": {
-      "name": "McBurnie",
-      "team": "HUL",
+      "name": "Kostoulas",
+      "team": "BHA",
       "pos": "FWD",
       "price": 5.5,
-      "ep_next": 2.82,
-      "ep_horizon": 14.4,
+      "ep_next": 3.94,
+      "ep_horizon": 18.0,
       "fixtures": [
-       "EVE(H)",
-       "FUL(A)",
-       "BRE(H)",
-       "IPS(H)",
-       "ARS(A)"
+       "SUN(A)",
+       "CRY(H)",
+       "LIV(A)",
+       "MCI(A)",
+       "BRE(H)"
       ],
-      "start_prob": 0.86,
-      "ceiling": 0.0421,
-      "exp_minutes": 81,
-      "xg90": 0.198,
-      "xa90": 0.025,
-      "shot_quality": 0.0093,
-      "attacking_share": 0.172,
-      "defcon90": 4.1,
-      "defcon_prob": 0.001,
-      "cs_prob": 0.362,
-      "setpiece": 0.292,
-      "own_league": 0.0,
+      "start_prob": 0.855,
+      "ceiling": 0.059,
+      "exp_minutes": 74,
+      "xg90": 0.344,
+      "xa90": 0.015,
+      "shot_quality": 0.0152,
+      "attacking_share": 0.088,
+      "defcon90": 6.6,
+      "defcon_prob": 0.038,
+      "cs_prob": 0.247,
+      "setpiece": 0.0,
+      "own_league": 0.023809523809523808,
       "own_pack": 0.0,
       "own_elite": null,
-      "own_overall": 0.02,
-      "price_direction": "hold",
-      "net_transfers": -891,
+      "own_overall": 0.012,
+      "price_direction": "rise",
+      "net_transfers": 24611,
       "status": "a",
       "news": ""
      },
      "reasons": [
-      "Projected -2.5 points across the horizon (14.4 vs 16.9).",
-      "A downgrade on its own. It exists to release \u00a32.3m, which funds a larger upgrade elsewhere in the rebuild \u2014 judge the wildcard as one move, not fifteen.",
-      "On set pieces, worth about +0.29 points per 90 before anything else happens.",
+      "Projected +1.1 points across the horizon (18.0 vs 16.9).",
       "Leverage: 80% of the teams above you own the man you are selling, 0% own the one you are buying. You gain ground when he returns.",
       "The man leaving is flagged: Knee injury - 75% chance of playing.",
-      "He is also falling in price (-59,037 net transfers), so holding costs team value too."
+      "He is also falling in price (-66,052 net transfers), so holding costs team value too.",
+      "The incoming player is rising (+24,611 net), so acting now is cheaper than acting later."
      ]
     }
    ]
@@ -1252,9 +1180,8 @@
    "captain": {
     "name": "B.Fernandes",
     "reasons": [
-     "Highest projection in your eleven at 7.9 points, against LEE(A).",
+     "Highest projection in your eleven at 7.5 points, against LEE(A).",
      "Only 10% of the teams above you own him, so every point he scores is a point of ground gained, doubled.",
-     "Elite ownership is 34% \u2014 captaining him is a differential against the best managers in the world, not just against your league.",
      "0.57 expected goals per 90 with 25% of his team's attack running through him.",
      "Hauls \u2014 10+ points \u2014 in 33% of weeks like this one."
     ]
@@ -1267,9 +1194,8 @@
    "captain": {
     "name": "B.Fernandes",
     "reasons": [
-     "Highest projection in your eleven at 8.1 points, against BOU(H).",
+     "Highest projection in your eleven at 8.2 points, against BOU(H).",
      "Only 10% of the teams above you own him, so every point he scores is a point of ground gained, doubled.",
-     "Elite ownership is 34% \u2014 captaining him is a differential against the best managers in the world, not just against your league.",
      "0.57 expected goals per 90 with 25% of his team's attack running through him.",
      "Hauls \u2014 10+ points \u2014 in 26% of weeks like this one."
     ]
@@ -1282,13 +1208,91 @@
    "captain": {
     "name": "Haaland",
     "reasons": [
-     "Highest projection in your eleven at 10.3 points, against BHA(H).",
+     "Highest projection in your eleven at 10.5 points, against BHA(H).",
      "0.833 expected goals per 90 with 26% of his team's attack running through him.",
      "Hauls \u2014 10+ points \u2014 in 7% of weeks like this one.",
-     "B.Fernandes actually has the higher ceiling (33% against 7%) but projects 7.3 to his 10.3 \u2014 worth the armband only if you need variance rather than points."
+     "B.Fernandes actually has the higher ceiling (33% against 7%) but projects 7.5 to his 10.5 \u2014 worth the armband only if you need variance rather than points."
     ]
    },
-   "transfers": []
+   "transfers": [
+    {
+     "out": {
+      "name": "Gro\u00df",
+      "team": "BHA",
+      "pos": "MID",
+      "price": 5.7,
+      "ep_next": 5.53,
+      "ep_horizon": 30.9,
+      "fixtures": [
+       "SUN(A)",
+       "CRY(H)",
+       "LIV(A)",
+       "MCI(A)",
+       "BRE(H)"
+      ],
+      "start_prob": 0.923,
+      "ceiling": 0.0817,
+      "exp_minutes": 88,
+      "xg90": 0.362,
+      "xa90": 0.176,
+      "shot_quality": 0.026,
+      "attacking_share": 0.164,
+      "defcon90": 5.1,
+      "defcon_prob": 0.006,
+      "cs_prob": 0.247,
+      "setpiece": 0.705,
+      "own_league": 0.2619047619047619,
+      "own_pack": 0.5,
+      "own_elite": 0.67,
+      "own_overall": 0.222,
+      "price_direction": "rise",
+      "net_transfers": 108602,
+      "status": "a",
+      "news": ""
+     },
+     "in": {
+      "name": "Scott",
+      "team": "BOU",
+      "pos": "MID",
+      "price": 6.1,
+      "ep_next": 4.22,
+      "ep_horizon": 27.9,
+      "fixtures": [
+       "CHE(A)",
+       "SUN(H)",
+       "MUN(A)",
+       "LEE(H)",
+       "IPS(A)"
+      ],
+      "start_prob": 0.851,
+      "ceiling": 0.059,
+      "exp_minutes": 75,
+      "xg90": 0.131,
+      "xa90": 0.088,
+      "shot_quality": 0.0121,
+      "attacking_share": 0.093,
+      "defcon90": 13.2,
+      "defcon_prob": 0.661,
+      "cs_prob": 0.241,
+      "setpiece": 0.0,
+      "own_league": 0.023809523809523808,
+      "own_pack": 0.0,
+      "own_elite": 0.01,
+      "own_overall": 0.057999999999999996,
+      "price_direction": "hold",
+      "net_transfers": -666,
+      "status": "a",
+      "news": ""
+     },
+     "reasons": [
+      "Projected -3.0 points across the horizon (27.9 vs 30.9).",
+      "Projected to lose points. Treat this as a flag that something else in the plan is driving it, not as a recommendation on its own.",
+      "66% chance of hitting the defensive contribution threshold, worth 1.3 points a game on its own.",
+      "13.2 defensive actions per 90 \u2014 a repeatable floor of defensive contribution points independent of form.",
+      "Leverage: 50% of the teams above you own the man you are selling, 0% own the one you are buying. You gain ground when he returns."
+     ]
+    }
+   ]
   },
   {
    "gw": 10,
@@ -1296,11 +1300,10 @@
    "captain": {
     "name": "B.Fernandes",
     "reasons": [
-     "Highest projection in your eleven at 9.8 points, against AVL(H).",
+     "Highest projection in your eleven at 9.6 points, against AVL(H).",
      "Only 10% of the teams above you own him, so every point he scores is a point of ground gained, doubled.",
-     "Elite ownership is 34% \u2014 captaining him is a differential against the best managers in the world, not just against your league.",
      "0.57 expected goals per 90 with 25% of his team's attack running through him.",
-     "Hauls \u2014 10+ points \u2014 in 25% of weeks like this one."
+     "Hauls \u2014 10+ points \u2014 in 26% of weeks like this one."
     ]
    },
    "transfers": []
@@ -1309,7 +1312,7 @@
  "planner": {
   "plan": {
    "legal": true,
-   "total_ep": 300.72,
+   "total_ep": 298.06,
    "total_hits": 0,
    "weeks": [
     {
@@ -1335,11 +1338,11 @@
       412,
       87,
       277,
-      469,
       418,
+      469,
       173,
-      480,
       40,
+      480,
       411,
       165,
       379
@@ -1352,7 +1355,7 @@
      ],
      "captain": 411,
      "formation": "5-2-3",
-     "ep": 55.09,
+     "ep": 54.81,
      "hit": 0,
      "free_transfers": 1,
      "free_after": 1,
@@ -1384,8 +1387,8 @@
       87,
       277,
       469,
-      418,
       173,
+      418,
       40,
       237,
       480,
@@ -1400,7 +1403,7 @@
      ],
      "captain": 411,
      "formation": "5-3-2",
-     "ep": 69.75,
+     "ep": 70.09,
      "hit": 0,
      "free_transfers": 1,
      "free_after": 2,
@@ -1433,22 +1436,22 @@
       277,
       418,
       173,
-      469,
       480,
       40,
+      366,
       411,
       379,
       165
      ],
      "bench": [
-      366,
+      469,
       237,
       454,
       496
      ],
      "captain": 411,
-     "formation": "5-2-3",
-     "ep": 56.79,
+     "formation": "4-3-3",
+     "ep": 55.92,
      "hit": 0,
      "free_transfers": 2,
      "free_after": 3,
@@ -1479,11 +1482,11 @@
       496,
       87,
       277,
-      469,
       173,
+      469,
       418,
-      480,
       40,
+      480,
       237,
       411,
       165
@@ -1496,7 +1499,7 @@
      ],
      "captain": 411,
      "formation": "5-3-2",
-     "ep": 69.69,
+     "ep": 69.02,
      "hit": 0,
      "free_transfers": 3,
      "free_after": 4,
@@ -1525,8 +1528,8 @@
      ],
      "xi": [
       412,
-      87,
       277,
+      87,
       418,
       469,
       173,
@@ -1544,7 +1547,7 @@
      ],
      "captain": 411,
      "formation": "5-2-3",
-     "ep": 49.4,
+     "ep": 48.22,
      "hit": 0,
      "free_transfers": 4,
      "free_after": 5,
@@ -1631,21 +1634,21 @@
     "ranked": [
      {
       "gw": 7,
-      "gain": 10.53
+      "gain": 10.83
      },
      {
       "gw": 8,
-      "gain": 6.89
+      "gain": 6.76
      },
      {
       "gw": 10,
-      "gain": 5.8
+      "gain": 5.77
      }
     ],
     "current_gw": 7,
     "best_gw": 7,
-    "best_gain": 10.53,
-    "gain_here": 10.53,
+    "best_gain": 10.83,
+    "gain_here": 10.83,
     "move_gain": 0.0,
     "placed": true
    },
@@ -1654,22 +1657,22 @@
     "ranked": [
      {
       "gw": 8,
-      "gain": 9.4
+      "gain": 8.97
      },
      {
       "gw": 10,
-      "gain": 8.69
+      "gain": 8.38
      },
      {
       "gw": 9,
-      "gain": 8.03
+      "gain": 7.75
      }
     ],
     "current_gw": 9,
     "best_gw": 8,
-    "best_gain": 9.4,
-    "gain_here": 8.03,
-    "move_gain": 1.37,
+    "best_gain": 8.97,
+    "gain_here": 7.75,
+    "move_gain": 1.22,
     "placed": true
    }
   },
@@ -1677,8 +1680,8 @@
    "from": 6,
    "to": 10
   },
-  "solver_total": 362.2,
-  "gap": -61.48
+  "solver_total": 369.8,
+  "gap": -71.74
  },
  "wildcard": {
   "for_gw": 6,
@@ -1692,23 +1695,23 @@
    12,
    13
   ],
-  "cost": 99.4,
+  "cost": 99.1,
   "budget": 99.4,
-  "in_bank": 0.0,
+  "in_bank": 0.3,
   "squad": [
+   "Tarkowski",
    "Saka",
    "De Cuyper",
-   "Van Hecke",
    "Silva",
+   "Gro\u00df",
    "Scott",
-   "Schade",
-   "Tavernier",
    "Davis",
    "Ajer",
+   "Janelt",
    "Barry",
    "Kelleher",
    "Tzolakis",
-   "McBurnie",
+   "Kostoulas",
    "Haaland",
    "B.Fernandes"
   ],
@@ -1734,48 +1737,48 @@
   "buy": [
    "B.Fernandes",
    "Saka",
-   "Tavernier",
    "Scott",
-   "Schade",
+   "Tarkowski",
+   "Gro\u00df",
    "Barry",
-   "McBurnie",
+   "Kostoulas",
+   "Janelt",
    "Kelleher",
    "Silva",
-   "Van Hecke",
    "De Cuyper",
    "Tzolakis",
    "Davis"
   ],
   "closest_calls": [
    {
-    "player": "Tavernier",
-    "alternative": "Gro\u00df",
-    "gap": 0.4
-   },
-   {
-    "player": "Tzolakis",
-    "alternative": "Scherpen",
-    "gap": 0.86
-   },
-   {
-    "player": "McBurnie",
-    "alternative": "Emersonn",
-    "gap": 1.23
-   },
-   {
-    "player": "Schade",
-    "alternative": "Janelt",
-    "gap": 1.45
+    "player": "Silva",
+    "alternative": "Van Hecke",
+    "gap": -0.12
    },
    {
     "player": "Barry",
-    "alternative": "Emersonn",
-    "gap": 1.8
+    "alternative": "McBurnie",
+    "gap": 0.05
    },
    {
-    "player": "Scott",
-    "alternative": "Gro\u00df",
-    "gap": 2.28
+    "player": "Kostoulas",
+    "alternative": "McBurnie",
+    "gap": 0.75
+   },
+   {
+    "player": "Kelleher",
+    "alternative": "Horn\u00ed\u010dek",
+    "gap": 1.63
+   },
+   {
+    "player": "Tzolakis",
+    "alternative": "Kinsky",
+    "gap": 1.76
+   },
+   {
+    "player": "Tarkowski",
+    "alternative": "Van Hecke",
+    "gap": 1.97
    }
   ]
  }
