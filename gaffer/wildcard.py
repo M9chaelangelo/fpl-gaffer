@@ -1,31 +1,40 @@
 """Draft a wildcard squad from nothing.
 
-A wildcard is a different problem from a transfer, and handing it to the
-transfer model gets the wrong answer for a specific reason. That model's
-candidate pool is the top hundred and thirty players by projected points — and
-a rebuild is decided by the players who are *not* on that list. Three premiums
-only fit if four-pound defenders carry them, and the cheapest player in a
-top-130 pool costs five and a half. Ask the weekly solver to wildcard and it
-will quietly tell you that you cannot afford the squad everybody else is about
-to buy.
+A wildcard is a different problem from a transfer. The weekly solve asks which
+one or two moves beat the friction of making them; this asks what fifteen
+players you would buy if you had never owned anyone.
 
-So the pool here is built by position and price band — the best few in every
-cell, plus the cheapest players in the game outright — which guarantees the
-enablers exist before the solver starts arguing about money.
+The pool is built by position and price band — the best few in every cell, plus
+the cheapest players in the game outright — so the enablers are guaranteed to
+exist before the solver starts arguing about money. Be honest about what that
+buys: measured against the weekly model's pool (top hundred and thirty by
+projected points) on GW6-13 of this season, it was worth **0.36 points**. Five
+games in, projections are flat enough that four-pound defenders reach a top-130
+cut on their own, so the guarantee is redundant — today. It stops being
+redundant once the season separates the cheap end from the expensive end, and a
+rebuild that cannot see a 4.0 defender cannot afford three premiums. This is
+insurance, not a points gain, and the day it pays is the day nobody is checking.
 
 Three other things differ from the weekly model:
 
-  * The horizon is longer. A wildcard is a structural decision, and judging it
-    over the same five weeks as a single transfer undersells the fixture run
-    you are actually buying.
-  * Chips you have already committed to are known, not decisions. That removes
-    every bilinear term — a Bench Boost in a known week is just a week where
-    the bench pays full price — and the model is then small enough to afford
-    the bigger pool and the longer horizon.
+  * The horizon is longer — eight weeks, not five. Worth **1.22 points** on the
+    same measurement: the largest of the three, and still small. A wildcard is
+    a structural decision and the extra weeks mostly confirm what four already
+    said.
+  * Chips you have already committed to are known, not decisions. Worth **0.77
+    points**, all of it in the Bench Boost week, where the bench pays full
+    price and the draft buys one that plays. It also removes every bilinear
+    term, which is what makes the bigger pool and longer horizon affordable.
   * Nothing is bought or sold after the draft. The squad is fixed and scored
     forward. Assuming you will also make perfect transfers afterwards flatters
     every squad by roughly the same amount and hides the differences between
     them, which are the only thing this is meant to measure.
+
+Two and a half points over eight gameweeks is the whole modelling case, and it
+is not why this module exists. It exists because a rebuild is now an artefact
+you can look at, argue with, and re-run — fifteen names with a priced
+alternative behind each one — instead of thirteen transfers buried in week two
+of a five-week plan.
 """
 import pulp
 

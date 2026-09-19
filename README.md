@@ -253,24 +253,36 @@ argue with is one you cannot correct.
 ## The wildcard
 
 A wildcard is not a transfer, so it does not come out of the transfer model.
-`wildcard.py` gives it its own solve, for one reason above all others: the
-weekly model's candidate pool is the top hundred and thirty players by
-projected points, and a rebuild is decided by the players who are *not* on that
-list. Three premiums only fit if four-pound defenders carry them, and the
-cheapest player in a top-130 pool costs five and a half.
+`wildcard.py` gives it its own solve: a pool stratified by position and price
+band (the best few in every cell, plus the cheapest players in the game
+outright), an eight-week horizon, and the chips you have committed to treated
+as known weeks rather than decisions.
 
-So the pool is stratified — the best few in every position and price band, plus
-the cheapest players in the game outright — which guarantees the enablers exist
-before the solver starts arguing about money. Three other differences:
+**What that is worth, measured rather than asserted.** Drafting GW6-13 of this
+season three ways, on identical projections, against the weekly model's own
+pool and horizon:
 
-- **The horizon is longer** (`wildcard_horizon`, default eight weeks). You are
-  buying a fixture run, not a weekend.
-- **Chips you have committed to are known, not decisions.** A Bench Boost in a
-  known week is simply a week where the bench pays full price. That removes
-  every bilinear term from the model, which is what pays for the bigger pool.
-- **Nothing is bought or sold after the draft.** Assuming you will also make
-  perfect transfers afterwards flatters every squad by about the same amount
-  and hides the differences between them — the only thing this is measuring.
+| change | points over eight gameweeks |
+| --- | --- |
+| stratified pool instead of top-130 by points | +0.36 |
+| eight-week horizon instead of four | +1.22 |
+| drafting with the chip weeks known | +0.77 |
+
+Two and a half points. The pool guarantee in particular is redundant today —
+five games in, projections are flat enough that four-pound defenders reach a
+top-130 cut on their own. It is insurance against that stopping being true
+later in the season, not a gain now, and the day it pays is the day nobody is
+checking.
+
+That is the whole modelling case, and it is not the reason the module exists.
+It exists because a rebuild is now something you can look at, argue with and
+re-run — fifteen names with a priced alternative behind each — instead of
+thirteen transfers buried in week two of a five-week plan.
+
+One more difference: **nothing is bought or sold after the draft.** Assuming
+you will also make perfect transfers afterwards flatters every squad by about
+the same amount and hides the differences between them, which are the only
+thing this is measuring.
 
 It runs whenever `chip_plan.wc` falls inside the horizon, or on demand:
 
