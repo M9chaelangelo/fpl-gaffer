@@ -167,3 +167,61 @@ def test_build_returns_every_section():
     for key in ("weak_spots", "autosubs", "exposure", "template"):
         assert key in out, key
     assert out["autosubs"]["any_autosub"] >= 0
+
+
+# --- fixture matrix ---------------------------------------------------------
+
+def _strengths():
+    """Nine clubs, cleanly ordered, so the thirds land three apiece."""
+    return {f"T{i}": {"overall": 2.0 - i * 0.2} for i in range(1, 10)}
+
+
+def test_tiers_are_cut_by_rank_not_by_a_fixed_threshold():
+    """Strong means strong for this division. A hard cut-off would drift as
+    the league's overall level moved."""
+    tiers = analysis.tier_teams(_strengths())
+    assert tiers["T1"] == "Strong" and tiers["T9"] == "Weak"
+    counts = {}
+    for t in tiers.values():
+        counts[t] = counts.get(t, 0) + 1
+    assert counts == {"Strong": 3, "Medium": 3, "Weak": 3}
+
+
+def test_the_matrix_totals_the_projected_points():
+    cards = [card(i, team=f"T{i}", ep_next=4.0, fixtures=[f"T{10-i}(H)"])
+             for i in range(1, 10)]
+    m = analysis.fixture_matrix(cards, [c["id"] for c in cards], _strengths())
+    assert abs(m["total"] - 36.0) < 1e-6
+    assert abs(sum(m["row_totals"].values()) - m["total"]) < 1e-6
+    assert abs(sum(m["col_totals"].values()) - m["total"]) < 1e-6
+
+
+def test_favourable_means_a_mismatch_in_your_favour():
+    """Strong against weak is favourable. Strong against strong is even, and
+    counting it as favourable would make every good team look well-fixtured."""
+    strong_v_weak = [card(1, team="T1", ep_next=5.0, fixtures=["T9(H)"])]
+    m = analysis.fixture_matrix(strong_v_weak, [1], _strengths())
+    assert m["favourable"] == 1.0
+
+    strong_v_strong = [card(1, team="T1", ep_next=5.0, fixtures=["T2(H)"])]
+    m = analysis.fixture_matrix(strong_v_strong, [1], _strengths())
+    assert m["favourable"] == 0.0
+
+    weak_v_strong = [card(1, team="T9", ep_next=5.0, fixtures=["T1(A)"])]
+    m = analysis.fixture_matrix(weak_v_strong, [1], _strengths())
+    assert m["favourable"] == 0.0
+
+
+def test_the_captain_counts_twice_in_the_matrix():
+    cards = [card(1, team="T1", ep_next=5.0, fixtures=["T9(H)"])]
+    plain = analysis.fixture_matrix(cards, [1], _strengths())
+    capped = analysis.fixture_matrix(cards, [1], _strengths(), captain_id=1)
+    assert capped["total"] == 2 * plain["total"]
+    assert capped["grid"]["Strong"]["Weak"]["count"] == 2
+
+
+def test_an_unknown_opponent_is_counted_as_unplaced_not_dropped_silently():
+    cards = [card(1, team="T1", ep_next=5.0, fixtures=["ZZZ(H)"])]
+    m = analysis.fixture_matrix(cards, [1], _strengths())
+    assert m["unplaced"] == 1
+    assert m["total"] == 0.0

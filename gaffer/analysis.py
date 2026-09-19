@@ -180,11 +180,97 @@ def template(cards, xi_ids, threshold=0.30):
     }
 
 
-def build(cards, xi_ids, bench_ids=(), captain_id=None, squad_ids=(), bank=0.0):
+def build(cards, xi_ids, bench_ids=(), captain_id=None, squad_ids=(), bank=0.0,
+          strengths=None):
     """Everything the diagnosis view needs, in one dict."""
     return {
         "weak_spots": weak_spots(cards, xi_ids, bank=bank, squad_ids=squad_ids),
         "autosubs": autosub_risk(cards, xi_ids, bench_ids),
         "exposure": exposure(cards, xi_ids, captain_id, limit=14),
         "template": template(cards, xi_ids),
+        "fixtures": (fixture_matrix(cards, xi_ids, strengths, captain_id)
+                     if strengths else None),
+    }
+
+
+# Where the cut between a strong, medium and weak side falls. Thirds of the
+# league by strength: twenty clubs, so roughly seven-six-seven.
+TIERS = ("Strong", "Medium", "Weak")
+
+
+def tier_teams(strengths, key="overall"):
+    """Sort clubs into three tiers by strength, best first.
+
+    The tiers are relative — a "weak" defence is weak for this division, not
+    weak in the abstract — so they are cut by rank rather than by a threshold
+    that would drift as the league's overall level moves."""
+    rows = [(t, v.get(key, 1.0)) for t, v in strengths.items()]
+    if not rows:
+        return {}
+    rows.sort(key=lambda r: -r[1])
+    n = len(rows)
+    out = {}
+    for i, (team, _) in enumerate(rows):
+        out[team] = TIERS[0] if i < n / 3 else (TIERS[1] if i < 2 * n / 3 else TIERS[2])
+    return out
+
+
+def _opponent(fixture):
+    """"BHA(A)" is a trip to Brighton. Returns the three-letter code."""
+    if not fixture:
+        return None
+    code = str(fixture).split("(")[0].strip()
+    return code or None
+
+
+def fixture_matrix(cards, xi_ids, strengths, captain_id=None, gw_index=0):
+    """Your eleven's projected points, crossed by how strong they are against
+    how strong the side they face is.
+
+    The question it answers is not "are my fixtures good" — that is a single
+    number anyone can quote — but *where* the points are coming from. Points
+    earned by strong players against weak sides are the ones you should
+    expect; points earned by weak players against strong sides are the ones
+    that will not keep arriving.
+
+    Favourable means a mismatch in your favour: your side stronger than the
+    one it faces. Strong-against-strong is not favourable, it is even.
+    """
+    by_id = {c["id"]: c for c in cards}
+    tiers = tier_teams(strengths)
+    grid = {a: {b: {"points": 0.0, "count": 0} for b in TIERS} for a in TIERS}
+    unplaced = 0
+
+    for pid in xi_ids:
+        c = by_id.get(pid)
+        if c is None or c.get("ep_next") is None:
+            continue
+        mine = tiers.get(c.get("team"))
+        opp = _opponent((c.get("fixtures") or [None] * (gw_index + 1))[gw_index]
+                        if len(c.get("fixtures") or []) > gw_index else None)
+        theirs = tiers.get(opp)
+        if mine is None or theirs is None:
+            unplaced += 1
+            continue
+        w = 2 if pid == captain_id else 1
+        grid[mine][theirs]["points"] += c["ep_next"] * w
+        grid[mine][theirs]["count"] += w
+
+    total = sum(grid[a][b]["points"] for a in TIERS for b in TIERS)
+    # A mismatch in your favour: your side is a tier above the one it faces.
+    favourable = sum(grid[a][b]["points"]
+                     for i, a in enumerate(TIERS)
+                     for j, b in enumerate(TIERS) if j > i)
+    return {
+        "tiers": list(TIERS),
+        "grid": {a: {b: {"points": round(grid[a][b]["points"], 1),
+                         "count": grid[a][b]["count"]}
+                     for b in TIERS} for a in TIERS},
+        "row_totals": {a: round(sum(grid[a][b]["points"] for b in TIERS), 1)
+                       for a in TIERS},
+        "col_totals": {b: round(sum(grid[a][b]["points"] for a in TIERS), 1)
+                       for b in TIERS},
+        "total": round(total, 1),
+        "favourable": round(favourable / total, 4) if total else 0.0,
+        "unplaced": unplaced,
     }

@@ -57,7 +57,7 @@ METRICS = [
 
 def build(proj, prof, lg, elite_own, price_fc, gws, squad_ids, weeks,
           deadline, gw, planner=None, hit_verdict=None, clean_sheets=None,
-          wildcard=None, team_form=None):
+          wildcard=None, team_form=None, strengths=None):
     """Assemble the page's dataset."""
     cards = {}
     for pid in proj:
@@ -126,6 +126,9 @@ def build(proj, prof, lg, elite_own, price_fc, gws, squad_ids, weeks,
         # The one number on the page a human can check against what they
         # actually watched on Saturday.
         "team_form": team_form or [],
+        # Attack and defence per club, form-blended and centred on one. The
+        # scatter every fixture argument ends up being about.
+        "strengths": strengths or {},
         # What the eleven might actually score, not just the mean of it.
         # Exact convolution over the per-player component distributions.
         "distribution": (distribution.squad_points(
@@ -151,7 +154,7 @@ def build(proj, prof, lg, elite_own, price_fc, gws, squad_ids, weeks,
             [p["id"] for p in now["xi"]],
             bench_ids=[p["id"] for p in now["bench"]],
             captain_id=now["captain"]["id"],
-            squad_ids=list(squad_ids)) if now else None),
+            squad_ids=list(squad_ids), strengths=strengths) if now else None),
         "boards": leaders.build(
             list(cards.values()), gw,
             xi_ids=[p["id"] for p in now["xi"]] if now else None,
