@@ -16,7 +16,7 @@ try:
     from . import setpieces
 except Exception:
     setpieces = None
-from . import defence
+from . import defence, teamform
 
 GOAL_POINTS = {"GKP": 10, "DEF": 6, "MID": 5, "FWD": 4}
 
@@ -130,12 +130,18 @@ def _availability(e):
     return 1.0 if c is None else c / 100.0
 
 
-def team_strength(boot, prior_games=6.0):
+def team_strength(boot, prior_games=6.0, fixtures=None, form_weight=0.0,
+                  half_life=2.5, form_prior=2.5):
     """Attack and defence strength from what teams have actually produced, not
     from FPL's fixture difficulty rating.
 
     FDR is a preseason label on a five-point scale and it does not move when a
-    side starts scoring three a game. Expected goals created and conceded do."""
+    side starts scoring three a game. Expected goals created and conceded do.
+
+    Season totals move slowly too, though. Pass `fixtures` with a `form_weight`
+    above zero and recent results are folded in on top, opponent-adjusted and
+    time-decayed — so a side in the middle of a run is rated for the run rather
+    than for its average since August. See `teamform`."""
     xg, xgc, mins = {}, {}, {}
     for e in boot["elements"]:
         if e["minutes"] < 45:
@@ -158,14 +164,29 @@ def team_strength(boot, prior_games=6.0):
         for t in games}
     a_avg = sum(atk.values()) / len(atk)
     d_avg = sum(n_def.values()) / len(n_def)
-    return ({t: v / a_avg for t, v in atk.items()},
-            {t: v / d_avg for t, v in n_def.items()})
+    season_atk = {t: v / a_avg for t, v in atk.items()}
+    season_dfn = {t: v / d_avg for t, v in n_def.items()}
+    if not fixtures or form_weight <= 0:
+        return season_atk, season_dfn
+
+    # Recent results, judged against what these very strengths expected — so
+    # the form measure cannot simply reward a soft run of fixtures.
+    fa, fd = teamform.recent(boot, fixtures, season_atk, season_dfn,
+                             half_life=half_life, prior_games=form_prior)
+    return (teamform.blend(season_atk, fa, form_weight),
+            teamform.blend(season_dfn, fd, form_weight))
 
 
 def build(boot, fixtures, gws, solio_feed=None, solio_weight=0.7,
-          form_weight=0.30, strength_weight=0.5, minutes_mult=None):
+          form_weight=0.30, strength_weight=0.5, minutes_mult=None,
+          team_form_weight=0.0, team_form_half_life=2.5):
     teams = {t["id"]: t["short_name"] for t in boot["teams"]}
-    atk, dfn = team_strength(boot)
+    # One change, felt everywhere: these two dicts drive the clean-sheet
+    # lambdas, the ceiling model's input, and every player's fixture
+    # multiplier. Folding form in here beats bolting it onto each in turn.
+    atk, dfn = team_strength(boot, fixtures=fixtures,
+                             form_weight=team_form_weight,
+                             half_life=team_form_half_life)
     # Expected goals conceded per team per gameweek, calibrated against Solio.
     lams, _ = defence.lambdas(boot, fixtures, gws, atk, solio_feed)
     postypes = {p["id"]: p["singular_name_short"] for p in boot["element_types"]}

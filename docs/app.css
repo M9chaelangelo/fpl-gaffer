@@ -251,3 +251,48 @@ tbody tr.mine td:first-child { border-left: 3px solid var(--series-1); }
 .note { font-size: 0.76rem; color: var(--ink-3); line-height: 1.4; margin: 8px 0 0; }
 .err { color: var(--bad); }
 .hidden { display: none !important; }
+
+/* --- wildcard: the rebuild ------------------------------------------------
+   A drafted squad is read three ways: the pitch for shape, the chips for what
+   changed, the week strip for the fixtures you are actually buying. The strip
+   scrolls rather than wraps — eight gameweeks wrapped onto three lines stops
+   looking like a timeline. */
+.weekpick { padding-top: 10px; padding-bottom: 8px; }
+.weekpick .row-pos {
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 6px;
+  margin-bottom: 0;
+  padding-bottom: 2px;
+}
+.wk {
+  flex: 0 0 auto;
+  font: 650 0.72rem/1 var(--mono);
+  padding: 7px 9px;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.wk:hover, .wk:focus-visible { border-color: var(--series-1); outline: none; }
+.wk.on {
+  background: var(--series-1);
+  border-color: var(--series-1);
+  color: #fff;
+}
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+.chips > span {
+  font: 600 0.72rem/1.25 var(--mono);
+  padding: 4px 7px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+}
+/* Colour carries the direction, but the card's own heading already says
+   "Sold" or "Bought" — so the hue is reinforcement, never the only signal. */
+.chip-rise { color: var(--good); border-color: color-mix(in srgb, var(--good) 40%, var(--line)); }
+.chip-fall { color: var(--bad);  border-color: color-mix(in srgb, var(--bad) 40%, var(--line)); }
+.chip-mute { color: var(--ink-3); }

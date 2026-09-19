@@ -250,6 +250,59 @@ argue with is one you cannot correct.
 - Solio's projections for the upcoming gameweek
 - Your mini-league's 42 squads, for effective ownership
 
+## The wildcard
+
+A wildcard is not a transfer, so it does not come out of the transfer model.
+`wildcard.py` gives it its own solve: a pool stratified by position and price
+band (the best few in every cell, plus the cheapest players in the game
+outright), an eight-week horizon, and the chips you have committed to treated
+as known weeks rather than decisions.
+
+**What that is worth, measured rather than asserted.** Drafting GW6-13 of this
+season three ways, on identical projections, against the weekly model's own
+pool and horizon:
+
+| change | points over eight gameweeks |
+| --- | --- |
+| stratified pool instead of top-130 by points | +0.36 |
+| eight-week horizon instead of four | +1.22 |
+| drafting with the chip weeks known | +0.77 |
+
+Two and a half points. The pool guarantee in particular is redundant today —
+five games in, projections are flat enough that four-pound defenders reach a
+top-130 cut on their own. It is insurance against that stopping being true
+later in the season, not a gain now, and the day it pays is the day nobody is
+checking.
+
+That is the whole modelling case, and it is not the reason the module exists.
+It exists because a rebuild is now something you can look at, argue with and
+re-run — fifteen names with a priced alternative behind each — instead of
+thirteen transfers buried in week two of a five-week plan.
+
+One more difference: **nothing is bought or sold after the draft.** Assuming
+you will also make perfect transfers afterwards flatters every squad by about
+the same amount and hides the differences between them, which are the only
+thing this is measuring.
+
+It runs whenever `chip_plan.wc` falls inside the horizon, or on demand:
+
+```
+python -m gaffer.main --wildcard 6
+```
+
+`wildcard_keep` and `wildcard_ban` in `config.yaml` force players in or out.
+Both are the argument, not the override: forcing a pick costs points, and the
+report prints what it cost.
+
+Every drafted player comes with the nearest alternative you could have
+afforded and the gap between them, over the whole horizon, holding the other
+fourteen fixed. A gap near zero is a coin toss — take the player you want to
+watch.
+
+The budget is your bank plus the selling value of all fifteen. If the wildcard
+is weeks away, that assumes you make no transfers in between; the page says so
+rather than hiding it.
+
 ## The value of waiting
 
 The optimiser scores every future gameweek with today's projections, so left
@@ -357,10 +410,16 @@ solve writes, and runs entirely in the browser — no framework, no build step, 
 CDN. GitHub Pages serves static files, and a dependency that 404s on a Friday
 evening is worse than no dependency.
 
-Four views:
+Five views:
 
 - **Team** — your eleven laid out on a pitch by position, captain and flags
   marked, projection on every card. Tap a player to open him in Compare.
+- **Wildcard** — the drafted fifteen on a pitch, with a week switcher so you
+  can see the line-up in every gameweek of the rebuild rather than only the
+  first. Who is sold, who is bought, who survives; the projected run as a bar
+  per gameweek with the chip weeks marked; and the closest calls — for each
+  drafted player, the nearest alternative you could afford and what taking him
+  would cost.
 - **Players** — every player in the pool, filterable by position, club, price,
   availability and your own squad, sortable on any column. Tap a row to compare.
 - **Compare** — any two players across sixteen metrics, normalised so the longer
@@ -431,8 +490,8 @@ Checked against the official rules page and the 2026/27 change notes.
 python -m pytest tests -q
 ```
 
-Sixty-two of them, covering the planner, the page it renders, and the ceiling
-model's wiring. They run on
+Eighty-four of them, covering the planner, the wildcard drafter, the page they
+render, and the ceiling model's wiring. They run on
 a synthetic squad — no network, no API, no solver — because the rules they
 check are exactly the ones that are expensive to get wrong and impossible to
 spot by eye on a Friday evening.

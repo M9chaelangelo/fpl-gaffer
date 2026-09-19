@@ -56,7 +56,8 @@ METRICS = [
 
 
 def build(proj, prof, lg, elite_own, price_fc, gws, squad_ids, weeks,
-          deadline, gw, planner=None, hit_verdict=None, clean_sheets=None):
+          deadline, gw, planner=None, hit_verdict=None, clean_sheets=None,
+          wildcard=None, team_form=None):
     """Assemble the page's dataset."""
     cards = {}
     for pid in proj:
@@ -67,6 +68,12 @@ def build(proj, prof, lg, elite_own, price_fc, gws, squad_ids, weeks,
         # Per-gameweek points drive the projection chart and the planner. Kept
         # as a plain list aligned to `gameweeks` so the JSON stays small.
         row["ep"] = [round(proj[pid]["ep"][g], 2) for g in gws]
+        # The rebuild looks further ahead than the weekly solve, so its weeks
+        # run off the end of `ep`. Without this the wildcard pitch shows the
+        # same number in every week and the week switcher looks broken.
+        if wildcard:
+            row["ep_wc"] = [round(proj[pid]["ep"].get(g, 0.0), 2)
+                            for g in wildcard["gws"]]
         cards[pid] = row
 
     now = weeks[0] if weeks else None
@@ -107,6 +114,14 @@ def build(proj, prof, lg, elite_own, price_fc, gws, squad_ids, weeks,
             for w in weeks
         ],
         "hit_verdict": hit_verdict,
+        # The rebuild, when one is planned. Player ids only — every card is
+        # already in `players`, and shipping them twice would add a third to
+        # the file for nothing.
+        "wildcard": wildcard,
+        # Attack and defence over the last few matches, opponent-adjusted.
+        # The one number on the page a human can check against what they
+        # actually watched on Saturday.
+        "team_form": team_form or [],
         "clean_sheets": clean_sheets or [],
         "planner": planner,
         "league": {

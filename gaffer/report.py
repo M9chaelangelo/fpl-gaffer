@@ -189,6 +189,78 @@ def render(ctx, path):
                  f"{_esc(moves)}<div class=note>Captain {_esc(wk['captain']['name'])} · "
                  f"{wk['ep']} projected</div></div>")
 
+    # --- the rebuild ------------------------------------------------------
+    wc = ctx.get("wildcard")
+    if wc:
+        pr = ctx.get("proj") or {}
+
+        def nm(pid):
+            return pr[pid]["name"] if pid in pr else str(pid)
+
+        p.append(f"<h2>The GW{wc['for_gw']} wildcard</h2>")
+        p.append(f"<div class=call><b>{wc['cost']}m spent, "
+                 f"{wc['in_bank']}m in the bank</b>"
+                 f"{len(wc['change']['keep'])} of your fifteen survive, "
+                 f"{len(wc['change']['buy'])} arrive. Drafted over "
+                 f"GW{wc['gws'][0]}–{wc['gws'][-1]}.</div>")
+        if wc.get("assumes_no_transfers"):
+            p.append("<p class=note>Priced on today's squad value, which "
+                     "assumes you make no transfers before the wildcard. "
+                     "If you do, the budget moves.</p>")
+        if not wc.get("optimal", True):
+            p.append("<p class=note>The solver hit its time limit — this is "
+                     "the best squad it found, not a proven optimum.</p>")
+
+        squad = sorted(wc["squad"],
+                       key=lambda i: (["GKP", "DEF", "MID", "FWD"].index(pr[i]["pos"])
+                                      if i in pr else 9, -pr[i]["price"]))
+        first = wc["weeks"][0]
+        p.append("<table><tr><th>Player</th><th class=n>£</th>"
+                 "<th class=n>Proj</th><th>Role</th></tr>")
+        for pid in squad:
+            q = pr.get(pid, {})
+            role = ("XI" if pid in first["xi"] else "bench")
+            if pid == first["captain"]:
+                role = "captain"
+            tag = "rise" if pid in wc["change"]["buy"] else "tag"
+            p.append(f"<tr><td class={tag}>{_esc(nm(pid))} "
+                     f"<span class=tag>{_esc(q.get('team', ''))} "
+                     f"{_esc(q.get('pos', ''))}</span></td>"
+                     f"<td class=n>{q.get('price', 0)}</td>"
+                     f"<td class=n>{q.get('ep', {}).get(first['gw'], 0):.1f}</td>"
+                     f"<td class=tag>{role}</td></tr>")
+        p.append("</table>")
+        p.append(f"<p class=note>Sold: "
+                 f"{_esc(', '.join(nm(i) for i in wc['change']['sell']) or '—')}</p>")
+
+        if wc.get("swaps"):
+            p.append("<h2>The closest calls</h2><table><tr><th>Drafted</th>"
+                     "<th>Nearest alternative</th><th class=n>Costs you</th></tr>")
+            for r in wc["swaps"][:8]:
+                gap = "—" if r["gap"] is None else f"{r['gap']:.2f}"
+                p.append(f"<tr><td>{_esc(nm(r['out']))}</td>"
+                         f"<td>{_esc(nm(r['in']) if r['in'] else '—')}</td>"
+                         f"<td class=n>{gap}</td></tr>")
+            p.append("</table><p class=note>Points over the whole draft "
+                     "horizon, holding the other fourteen fixed. A number near "
+                     "zero is a coin toss — take the player you want to watch.</p>")
+
+    if ctx.get("team_form"):
+        p.append("<h2>Team form</h2><table><tr><th>Team</th>"
+                 "<th class=n>Attack</th><th class=n>Defence</th>"
+                 "<th class=n>Form</th></tr>")
+        for r in ctx["team_form"][:10]:
+            cls = "rise" if r["form"] > 1.03 else ("fall" if r["form"] < 0.97 else "")
+            p.append(f"<tr><td>{_esc(r['team'])}</td>"
+                     f"<td class=n>{r['attack']:.2f}</td>"
+                     f"<td class=n>{r['defence']:.2f}</td>"
+                     f"<td class='n {cls}'>{r['form']:.2f}</td></tr>")
+        p.append("</table><p class=note>Goals scored and conceded over the "
+                 "last few matches against what the fixtures warranted, "
+                 "time-decayed and opponent-adjusted. 1.00 is exactly to "
+                 "expectation. Defence above 1.00 means leakier than it "
+                 "should have been.</p>")
+
     p.append("<h2>Nobody in your league owns these</h2><table>"
              "<tr><th>Player</th><th class=n>£</th><th class=n>Proj</th>"
              "<th class=n>League</th><th class=n>Pack</th></tr>")

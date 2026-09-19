@@ -6,7 +6,27 @@ import yaml
 
 from . import (fetch, league, projections, prices, optimise, report, timing,
                styles, elite, explain, defence, calibrate, rotation, planner,
-               webdata)
+               webdata, wildcard, teamform)
+
+
+def resolve_names(proj, names):
+    """Turn a list of web names from config into player ids.
+
+    Two players can share a web name, so ties go to the one with more points
+    this season — which is the one you meant. Returns the ids it found and the
+    names it did not, because silently dropping a name you typed is how a
+    keep list stops keeping anybody."""
+    by_name = {}
+    for i, p in proj.items():
+        by_name.setdefault(p["name"].lower(), []).append(i)
+    ids, missing = [], []
+    for nm in names or []:
+        hit = by_name.get(str(nm).lower())
+        if hit:
+            ids.append(max(hit, key=lambda i: proj[i]["total_points"]))
+        else:
+            missing.append(nm)
+    return ids, missing
 
 
 def purchase_prices(boot, entry_id, squad_ids):
@@ -29,6 +49,9 @@ def main():
     ap.add_argument("--free-transfers", default=None)
     ap.add_argument("--only-on-deadline-day", action="store_true",
                     help="exit quietly unless a deadline falls today")
+    ap.add_argument("--wildcard", default=None,
+                    help="draft a wildcard squad for this gameweek, whatever "
+                         "chip_plan says")
     args = ap.parse_args()
     cfg = yaml.safe_load(open(args.config))
 
@@ -38,6 +61,13 @@ def main():
     gw = fetch.current_gw(boot)
     gws = [g for g in range(gw, gw + cfg["horizon"])
            if any(e["id"] == g for e in boot["events"])]
+    # A wildcard is judged over a longer run than a single transfer, so the
+    # projections are built further out than the weekly plan needs. Everything
+    # except the rebuild still works on `gws`: a five-week solve that suddenly
+    # became a ten-week one would change every other recommendation on the page.
+    span = max(cfg["horizon"], cfg.get("wildcard_horizon", 8))
+    gws_long = [g for g in range(gw, gw + span)
+                if any(e["id"] == g for e in boot["events"])]
     ev = next(e for e in boot["events"] if e["id"] == gw)
     deadline = datetime.fromisoformat(
         ev["deadline_time"].replace("Z", "+00:00")).strftime("%a %d %b %H:%M UTC")
@@ -64,14 +94,16 @@ def main():
     mins_mult = rotation.congestion(
         boot, cfg.get("european_teams", ()), cfg.get("european_weeks", ()),
         cfg.get("european_haircut", 0.12), cfg.get("midweek_haircut", 0.06))
-    proj = projections.build(boot, fx, gws, feed, cfg["solio_weight"],
+    proj = projections.build(boot, fx, gws_long, feed, cfg["solio_weight"],
                              cfg.get("form_weight", 0.30),
-                             cfg.get("strength_weight", 0.5), mins_mult)
+                             cfg.get("strength_weight", 0.5), mins_mult,
+                             cfg.get("team_form_weight", 0.0),
+                             cfg.get("team_form_half_life", 2.5))
     if cfg.get("calibrate_to_solio", True):
         scale, n = calibrate.fit(proj, feed, gw)
         if n:
             print(f"  calibration vs Solio: x{scale:.3f} on {n} shared players")
-        proj = calibrate.apply(proj, scale, gws)
+        proj = calibrate.apply(proj, scale, gws_long)
 
     last = gw - 1
     my = fetch.picks(cfg["entry_id"], last)
@@ -84,16 +116,7 @@ def main():
     # solver plans from a team you no longer own.
     override = cfg.get("current_squad")
     if override:
-        by_name = {}
-        for i, p in proj.items():
-            by_name.setdefault(p["name"].lower(), []).append(i)
-        resolved, missing = [], []
-        for nm in override:
-            hit = by_name.get(str(nm).lower())
-            if hit:
-                resolved.append(max(hit, key=lambda i: proj[i]["total_points"]))
-            else:
-                missing.append(nm)
+        resolved, missing = resolve_names(proj, override)
         if missing:
             print(f"  !! could not resolve in current_squad: {missing}")
         if len(resolved) == 15:
@@ -160,9 +183,68 @@ def main():
                + ("Worth it." if gain >= thr else
                   f"Not worth it — the bar is {thr}. Roll the transfer instead."))
 
-    atk, _ = projections.team_strength(boot)
+    # --- the rebuild ---------------------------------------------------------
+    # A wildcard is not a transfer, so it does not come out of the transfer
+    # model. It gets its own solve: a bigger pool that reaches down to the
+    # four-pound enablers, and a longer horizon, because you are buying a
+    # fixture run rather than a weekend.
+    wc_draft = None
+    wc_gw = plan_chips.get("wc")
+    if (args.wildcard or "").strip():
+        try:
+            wc_gw = int(args.wildcard)
+        except ValueError:
+            print(f"  !! --wildcard {args.wildcard!r} is not a gameweek; "
+                  f"falling back to chip_plan")
+    if wc_gw and wc_gw in gws_long:
+        wc_weeks = [g for g in gws_long if g >= wc_gw][:cfg.get("wildcard_horizon", 8)]
+        budget = round(bank + sum(sell.values()), 1)
+        keep_ids, keep_miss = resolve_names(proj, cfg.get("wildcard_keep"))
+        ban_ids, ban_miss = resolve_names(proj, cfg.get("wildcard_ban"))
+        if keep_miss or ban_miss:
+            print(f"  !! wildcard keep/ban names not found: "
+                  f"{keep_miss + ban_miss}")
+        bb_gw = plan_chips.get("bb") if plan_chips.get("bb") in wc_weeks else None
+        tc_gw = plan_chips.get("tc") if plan_chips.get("tc") in wc_weeks else None
+        print(f"drafting the GW{wc_gw} wildcard over {wc_weeks} "
+              f"on {budget}m…")
+        try:
+            cand = wildcard.pool(proj, wc_weeks, cfg, keep_ids, ban_ids)
+            wc_draft = wildcard.draft(proj, wc_weeks, budget, cfg,
+                                      lg["pack_own"], keep=keep_ids,
+                                      ban=ban_ids, bb_gw=bb_gw, tc_gw=tc_gw,
+                                      candidates=cand)
+            wc_draft["swaps"] = wildcard.swaps(
+                wc_draft["squad"], proj, wc_weeks, budget, cfg,
+                lg["pack_own"], bb_gw=bb_gw, tc_gw=tc_gw, candidates=cand)
+            wc_draft["change"] = wildcard.summarise(wc_draft, proj, squad_ids)
+            wc_draft["for_gw"] = wc_gw
+            # The money is only right if nothing is bought between now and the
+            # wildcard. Usually true — you are saving transfers for it — but it
+            # is an assumption, not a fact, so the page says so.
+            wc_draft["assumes_no_transfers"] = wc_gw > gws[0]
+            wc_draft["pool_size"] = len(cand)
+            kept = len(wc_draft["change"]["keep"])
+            print(f"  {wc_draft['cost']}m spent, {wc_draft['in_bank']}m left, "
+                  f"{kept} of your fifteen survive")
+        except ValueError as e:
+            print(f"  !! wildcard draft failed: {e}")
+
+    atk, dfn = projections.team_strength(
+        boot, fixtures=fx, form_weight=cfg.get("team_form_weight", 0.0),
+        half_life=cfg.get("team_form_half_life", 2.5))
     lams, tmn = defence.lambdas(boot, fx, gws, atk, fetch.solio(cfg["solio_url"]))
     cs_table = defence.table(boot, lams, tmn, gw, limit=12)
+
+    # Who is actually in form, so the page can be checked against what you
+    # watched on Saturday rather than only acted on.
+    season_atk, season_dfn = projections.team_strength(boot)
+    fa, fd = teamform.recent(boot, fx, season_atk, season_dfn,
+                             half_life=cfg.get("team_form_half_life", 2.5))
+    form_table = teamform.table(boot, fa, fd)
+    if form_table:
+        hot = ", ".join(f"{r['team']} {r['form']:.2f}" for r in form_table[:4])
+        print(f"  team form (weight {cfg.get('team_form_weight', 0.0)}): {hot}")
 
     prof = styles.profile(boot)
     try:
@@ -224,7 +306,8 @@ def main():
     # the app breaks or the browser is ancient.
     data = webdata.build(proj, prof, lg, elite_own, pf, gws, squad_ids, weeks,
                          deadline, gw, planner=graded, hit_verdict=verdict,
-                         clean_sheets=cs_table)
+                         clean_sheets=cs_table, wildcard=wc_draft,
+                         team_form=form_table)
     webdata.write(data, cfg["out_dir"])
 
     out = os.path.join(cfg["out_dir"], "report.html")
@@ -232,13 +315,31 @@ def main():
                    "prices": watch, "hit_verdict": verdict, "flagged": flagged,
                    "pack_own": lg["pack_own"], "league_line": line,
                    "rationale": rationale, "clean_sheets": cs_table,
-                   "planner": graded}, out)
+                   "planner": graded, "wildcard": wc_draft, "proj": proj,
+                   "team_form": form_table}, out)
     json.dump({"gw": gw, "generated": datetime.now(timezone.utc).isoformat(),
                "weeks": [{k: v for k, v in w.items()
                           if k in ("gw", "in", "out", "hits", "chip", "ep")}
                          for w in weeks],
                "hit_verdict": verdict, "gems": gems[:20],
-               "rationale": rationale, "planner": graded},
+               "rationale": rationale, "planner": graded,
+               # Names, not ids: this file is meant to be readable on its own.
+               "wildcard": (None if not wc_draft else {
+                   "for_gw": wc_draft["for_gw"],
+                   "over": wc_draft["gws"],
+                   "cost": wc_draft["cost"],
+                   "budget": wc_draft["budget"],
+                   "in_bank": wc_draft["in_bank"],
+                   "squad": [proj[i]["name"] for i in wc_draft["squad"]],
+                   "keep": [proj[i]["name"] for i in wc_draft["change"]["keep"]],
+                   "sell": [proj[i]["name"] for i in wc_draft["change"]["sell"]],
+                   "buy": [proj[i]["name"] for i in wc_draft["change"]["buy"]],
+                   "closest_calls": [
+                       {"player": proj[r["out"]]["name"],
+                        "alternative": (proj[r["in"]]["name"] if r["in"] else None),
+                        "gap": r["gap"]}
+                       for r in wc_draft["swaps"][:6]],
+               })},
               open(os.path.join(cfg["out_dir"], "plan.json"), "w"), indent=1)
     json.dump({"solved_gw": gw, "deadline": ev["deadline_time"],
                "solved_at": datetime.now(timezone.utc).isoformat()},

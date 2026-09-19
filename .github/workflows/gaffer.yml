@@ -12,6 +12,15 @@ on:
         description: "Free transfers available this week (1-5)"
         required: false
         default: "1"
+      force:
+        description: "Solve even when no deadline falls today"
+        required: false
+        type: boolean
+        default: false
+      wildcard:
+        description: "Draft a wildcard for this gameweek (blank = use chip_plan)"
+        required: false
+        default: ""
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -32,9 +41,23 @@ jobs:
             python -m gaffer.learn
           fi
       - name: solve
+        env:
+          FORCE: ${{ github.event.inputs.force }}
+          FT: ${{ github.event.inputs.free_transfers }}
+          WC: ${{ github.event.inputs.wildcard }}
         run: |
-          python -m gaffer.main --only-on-deadline-day \
-            --free-transfers "${{ github.event.inputs.free_transfers || '' }}"
+          # The gate exists so the daily cron costs seconds on an ordinary day.
+          # Dispatching with force on is how you ask for a solve anyway — the
+          # wildcard is drafted weeks before its deadline, so it cannot wait
+          # for one.
+          # `a && b` as a statement is a trap under `bash -e`: on a scheduled
+          # run FORCE is empty, the test fails, and the step dies before the
+          # solve. An `if` returns zero either way.
+          gate=--only-on-deadline-day
+          if [ "$FORCE" = "true" ]; then gate=""; fi
+          wc=""
+          if [ -n "$WC" ]; then wc="--wildcard $WC"; fi
+          python -m gaffer.main $gate $wc --free-transfers "$FT"
       - name: publish
         run: |
           git config user.name gaffer
