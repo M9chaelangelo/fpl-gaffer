@@ -220,3 +220,20 @@ def test_the_points_breakdown_and_diagnosis_are_exported():
     ids = {p["id"] for p in d["players"]}
     for row in diag["weak_spots"]:
         assert row["out"] in ids and row["in"] in ids
+
+
+def test_the_fixture_ticker_is_exported_with_string_keys():
+    """JSON has no integer keys, so the page would have to coerce them back.
+    Exporting them as strings keeps that conversion in one place."""
+    gws = [5, 6, 7]
+    proj, prof, lg, pf, squad_ids, weeks = _ctx(gws)
+    ticker = {5: [{"h": "ARS", "a": "LIV"}], 6: [{"h": "MCI", "a": "CHE"}]}
+    d = webdata.build(proj, prof, lg, {1: 0.6}, pf, gws, squad_ids, weeks,
+                      "Fri 18 Sep 18:30", gws[0], hit_verdict="Roll it.",
+                      clean_sheets=[], ticker=ticker)
+    assert set(d["ticker"]) == {"5", "6"}
+    assert d["ticker"]["5"][0]["h"] == "ARS"
+
+
+def test_no_ticker_is_an_empty_map_not_a_missing_key():
+    assert build()["ticker"] == {}

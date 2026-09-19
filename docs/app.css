@@ -474,3 +474,25 @@ td.heat { font-family: var(--mono); font-weight: 650; color: var(--ink); border-
   .pl { width: 86px; }
   body { font-size: 15.5px; }
 }
+
+/* --- the fixture ticker ---------------------------------------------------
+   A column per gameweek, a split pill per match. The club codes carry their
+   own colours because that is the only way a twenty-match column is scannable
+   — and the ink on each half is chosen by luminance, not guessed, so Fulham's
+   white and Newcastle's black both stay readable. */
+.ticker { display: flex; gap: 7px; align-items: flex-start; }
+.tickcol { flex: 0 0 auto; min-width: 118px; }
+.tickcol .label { display: block; margin-bottom: 6px; }
+.match {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+  margin-bottom: 4px;
+}
+.mhalf {
+  font: 700 0.66rem/1 var(--mono);
+  padding: 6px 4px; text-align: center; border-radius: 3px;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.node .moves {
+  font-size: 0.68rem; line-height: 1.5; margin-top: 7px;
+  border-top: 1px solid var(--line-soft); padding-top: 6px;
+}

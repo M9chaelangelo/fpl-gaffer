@@ -252,6 +252,17 @@ def main():
                               "overall": round(atk.get(tid, 1.0)
                                                / max(0.3, dfn.get(tid, 1.0)), 3)}
                  for tid in codes}
+    # The fixture ticker: every match in the horizon, by gameweek. The page
+    # cannot derive this from the player cards — those carry one opponent per
+    # player, not the round.
+    ticker = {}
+    for x in fx:
+        g = x.get("event")
+        if g in gws_long and x.get("team_h") in codes and x.get("team_a") in codes:
+            ticker.setdefault(g, []).append(
+                {"h": codes[x["team_h"]], "a": codes[x["team_a"]]})
+    for g in ticker:
+        ticker[g].sort(key=lambda m: m["h"])
     if form_table:
         hot = ", ".join(f"{r['team']} {r['form']:.2f}" for r in form_table[:4])
         print(f"  team form (weight {cfg.get('team_form_weight', 0.0)}): {hot}")
@@ -317,7 +328,8 @@ def main():
     data = webdata.build(proj, prof, lg, elite_own, pf, gws, squad_ids, weeks,
                          deadline, gw, planner=graded, hit_verdict=verdict,
                          clean_sheets=cs_table, wildcard=wc_draft,
-                         team_form=form_table, strengths=strengths)
+                         team_form=form_table, strengths=strengths,
+                         ticker=ticker)
     webdata.write(data, cfg["out_dir"])
 
     out = os.path.join(cfg["out_dir"], "report.html")

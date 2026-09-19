@@ -296,9 +296,24 @@ function renderOverview() {
       nums.append(el("span", null, String(lo)), el("span", null, "+" + hi));
       n.append(nums);
     }
+    /* The moves, named. A node that says "2 transfers" makes you open it to
+       find out which two — and that is the whole decision. */
+    const ins = (w.in || []).map(byId), outs = (w.out || []).map(byId);
+    if (ins.length && ins.length <= 3) {
+      const list = el("div", "moves");
+      outs.forEach((o, i) => {
+        const line = el("div");
+        line.append(el("span", "dim", o.name));
+        line.append(el("span", null, " \u21b3 " + (ins[i] ? ins[i].name : "")));
+        list.append(line);
+      });
+      n.append(list);
+    } else if (ins.length) {
+      n.append(el("div", "moves dim", `${ins.length} moves`));
+    }
     const foot = el("div", "foot");
     foot.append(el("span", null, w.chip ? w.chip : "—"));
-    foot.append(el("span", null, w.hits ? `−${w.hits * 4}` : "⇄ " + (w.in || []).length));
+    foot.append(el("span", null, w.hits ? `−${w.hits * 4}` : "\u21c4 " + (w.in || []).length));
     n.append(foot);
     n.addEventListener("click", () => { S.gw = w.gw; renderOverview(); });
     strip.append(n);
@@ -656,6 +671,31 @@ function projTeams(root) {
 
 function projFixtures(root) {
   const d = S.data;
+  const ticker = d.ticker || {};
+  const gws = (d.gameweeks || []).filter((g) => (ticker[String(g)] || []).length);
+  if (gws.length) {
+    const c = el("div", "card");
+    c.append(section("The ticker"));
+    c.append(el("p", "sec-note", "Every match in the horizon, by gameweek."));
+    const wrap = el("div", "tablewrap");
+    const grid = el("div", "ticker");
+    for (const g of gws) {
+      const col = el("div", "tickcol");
+      col.append(el("div", "label", "GW" + g));
+      for (const m of ticker[String(g)]) {
+        const cell = el("div", "match");
+        cell.append(half(m.h), half(m.a));
+        cell.title = `${m.h} v ${m.a}`;
+        col.append(cell);
+      }
+      grid.append(col);
+    }
+    wrap.append(grid);
+    c.append(wrap);
+    c.append(el("p", "note", "Home on the left, away on the right."));
+    root.append(c);
+  }
+
   const fx = (d.diagnosis || {}).fixtures;
   if (!fx) { root.append(el("p", "note", "No fixture matrix in this solve.")); return; }
   const c = el("div", "card");
@@ -680,6 +720,17 @@ function projFixtures(root) {
     })), { unit: "%", series: "var(--green)" }));
     root.append(s);
   }
+}
+
+/** One half of a fixture pill: a club code on its own colour, with the ink
+ *  chosen by luminance rather than guessed — Fulham's white and Newcastle's
+ *  black both have to stay readable. */
+function half(code) {
+  const bg = clubColour(code);
+  const h = el("span", "mhalf", code);
+  h.style.background = bg;
+  h.style.color = pickInk(bg);
+  return h;
 }
 
 function fixtureMatrix(fx) {

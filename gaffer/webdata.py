@@ -57,7 +57,7 @@ METRICS = [
 
 def build(proj, prof, lg, elite_own, price_fc, gws, squad_ids, weeks,
           deadline, gw, planner=None, hit_verdict=None, clean_sheets=None,
-          wildcard=None, team_form=None, strengths=None):
+          wildcard=None, team_form=None, strengths=None, ticker=None):
     """Assemble the page's dataset."""
     cards = {}
     for pid in proj:
@@ -129,6 +129,10 @@ def build(proj, prof, lg, elite_own, price_fc, gws, squad_ids, weeks,
         # Attack and defence per club, form-blended and centred on one. The
         # scatter every fixture argument ends up being about.
         "strengths": strengths or {},
+        # Every match in the horizon, by gameweek — the ticker. Keys are
+        # strings because JSON has no integer keys and the page would have to
+        # coerce them back anyway.
+        "ticker": {str(g): v for g, v in (ticker or {}).items()},
         # What the eleven might actually score, not just the mean of it.
         # Exact convolution over the per-player component distributions.
         "distribution": (distribution.squad_points(
