@@ -16,7 +16,7 @@ static files and nothing else.
 import json
 import os
 
-from . import explain, leaders
+from . import distribution, explain, leaders
 
 # Fields kept per player. Deliberately explicit: an accidental `**p` here would
 # ship the whole projection dict, and `ep` alone is a dict per gameweek for
@@ -126,6 +126,15 @@ def build(proj, prof, lg, elite_own, price_fc, gws, squad_ids, weeks,
         # The one number on the page a human can check against what they
         # actually watched on Saturday.
         "team_form": team_form or [],
+        # What the eleven might actually score, not just the mean of it.
+        # Exact convolution over the per-player component distributions.
+        "distribution": (distribution.squad_points(
+            list(cards.values()),
+            [p["id"] for p in now["xi"]],
+            captain_id=now["captain"]["id"],
+            bench_ids=[p["id"] for p in now["bench"]],
+            chip={"Bench Boost": "bb", "Triple Captain": "tc"}.get(now["chip"]))
+            if now else None),
         "boards": leaders.build(
             list(cards.values()), gw,
             xi_ids=[p["id"] for p in now["xi"]] if now else None,

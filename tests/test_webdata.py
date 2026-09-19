@@ -193,3 +193,15 @@ def test_boards_are_exported_for_the_page():
             assert "name" in row and "team" in row
     # The eleven the solve picked is what the haul distribution is over.
     assert b["hauls"] is None or b["hauls"]["n"] <= 11
+
+
+def test_the_squad_distribution_is_exported():
+    """The Lineup view's curve. Its mean has to agree with the week's own
+    projected total, or the page states two different numbers for the same
+    eleven."""
+    d = build()
+    dist = d["distribution"]
+    assert dist is not None
+    assert abs(sum(dist["pmf"]) - 1.0) < 1e-3
+    assert set(dist["thresholds"]) == {"40", "60", "80"}
+    assert dist["n"] == 11
