@@ -90,6 +90,20 @@ def plan(proj, squad_ids, sell, bank, gws, free_transfers, cfg,
             # Triple Captain adds a third multiple of whoever you actually
             # captain that week, not of the best player in the game.
             obj.append(ep * rivalry_weight(i, pack_own, rivalry) * trip[(i, g)])
+            # …and it is chosen on the tail, not the mean. Tripling a player
+            # only pays when he hauls: a 6.0 that goes double-digit one week in
+            # five beats a 6.4 that never does, and expected points cannot tell
+            # those two apart. The learned ceiling (P(10+), AUC 0.849) tilts the
+            # armband toward the player who can actually spike.
+            #
+            # The tilt is deliberately small. It breaks ties between comparable
+            # captains rather than overruling the projection — a ceiling model
+            # that outvoted expected points would hand the chip to a cheap
+            # lottery ticket, which is the opposite of the point.
+            haul = p.get("ceiling", {}).get(g)
+            if haul is not None:
+                obj.append(cfg.get("ceiling_weight", 6.0) * haul * d
+                           * trip[(i, g)])
         obj.append(-cfg.get("hit_cost", 4) * d * hits[g])
         # Friction on every move, so the solver stops selling a player and
         # buying him back two weeks later to chase a rounding error.

@@ -23,7 +23,7 @@ from . import explain
 # seven hundred players.
 CARD_FIELDS = (
     "name", "team", "pos", "price", "ep_next", "ep_horizon", "fixtures",
-    "start_prob", "exp_minutes", "xg90", "xa90", "shot_quality",
+    "start_prob", "ceiling", "exp_minutes", "xg90", "xa90", "shot_quality",
     "attacking_share", "defcon90", "defcon_prob", "cs_prob", "setpiece",
     "own_league", "own_pack", "own_elite", "own_overall",
     "price_direction", "net_transfers", "status", "news",
@@ -36,6 +36,9 @@ METRICS = [
     {"key": "ep_next", "label": "Projected points", "higher_better": True, "fmt": "num"},
     {"key": "ep_horizon", "label": "Points over horizon", "higher_better": True, "fmt": "num"},
     {"key": "start_prob", "label": "Starts", "higher_better": True, "fmt": "pct"},
+    # The tail. Ranks players differently from expected points, which is the
+    # whole reason it is here rather than folded into one number.
+    {"key": "ceiling", "label": "Hauls (10+ pts)", "higher_better": True, "fmt": "pct"},
     {"key": "exp_minutes", "label": "Expected minutes", "higher_better": True, "fmt": "int"},
     {"key": "xg90", "label": "xG per 90", "higher_better": True, "fmt": "num3"},
     {"key": "xa90", "label": "xA per 90", "higher_better": True, "fmt": "num3"},
