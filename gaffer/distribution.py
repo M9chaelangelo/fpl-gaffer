@@ -108,10 +108,15 @@ def sd(pmf):
     return math.sqrt(sum((i - m) ** 2 * p for i, p in enumerate(pmf)))
 
 
-def player_points(card, cap=CAP):
-    """One player's gameweek, as a probability per whole point.
+def fit(card, cap=CAP):
+    """The parameters behind one player's week, solved once.
 
-    None when the card carries too little to model — a projection with no
+    Both the distribution and the points breakdown need the same numbers,
+    including the scale factor that reconciles the components with the
+    projection — so they are solved here rather than twice, slightly
+    differently.
+
+    None when the card carries too little to model: a projection with no
     minutes behind it is a number, not a distribution.
     """
     ep = card.get("ep_next")
@@ -153,6 +158,7 @@ def player_points(card, cap=CAP):
     target = float(ep)
     pmf = assemble(1.0)
     gap = target - mean(pmf)
+    scale, extra = 1.0, 0.0
 
     # Bonus, saves, the concession penalty and cards are not modelled, so the
     # components rarely land on the projection the rest of the app quotes. The
@@ -163,6 +169,7 @@ def player_points(card, cap=CAP):
         # as an extra component. Split across two whole points so the mean is
         # exact rather than rounded: rounding loses up to half a point per
         # player, and eleven of those is four points on the squad total.
+        extra = gap
         lo = math.floor(gap)
         frac = gap - lo
         pmf = [(1 - frac) * a + frac * b
@@ -180,8 +187,97 @@ def player_points(card, cap=CAP):
                 hi = mid
             else:
                 lo = mid
-        pmf = assemble((lo + hi) / 2)
-    return pmf
+        scale = (lo + hi) / 2
+        pmf = assemble(scale)
+
+    return {
+        "pos": pos, "start": start, "scale": scale, "extra": extra,
+        "lam_g": lam_g * scale, "lam_a": lam_a * scale,
+        "p_cs": min(1.0, p_cs * scale), "p_dc": min(1.0, p_dc * scale),
+        "pmf": pmf,
+    }
+
+
+def player_points(card, cap=CAP):
+    """One player's gameweek, as a probability per whole point."""
+    f = fit(card, cap)
+    return f["pmf"] if f else None
+
+
+# The buckets a projected total is broken into, in the order the page shows
+# them. "Other" is everything the component model does not reach — bonus above
+# all, plus saves, the goals-conceded penalty and cards. Naming it beats
+# quietly folding it into the parts that *are* modelled.
+COMPONENTS = ("goals", "assists", "clean_sheets", "defcon", "appearance", "other")
+
+
+def player_components(card):
+    """Where one player's projected points come from, and how many events.
+
+    Unconditional: a rate conditioned on starting, multiplied back by the
+    chance he starts. The six buckets sum to the projection exactly."""
+    f = fit(card)
+    if f is None:
+        return None
+    pos, start = f["pos"], f["start"]
+    goals = f["lam_g"] * start
+    assists = f["lam_a"] * start
+    cs = f["p_cs"] * start
+    dc = f["p_dc"] * start
+    return {
+        "points": {
+            "goals": goals * GOAL[pos],
+            "assists": assists * ASSIST,
+            "clean_sheets": cs * CLEAN_SHEET[pos],
+            "defcon": dc * DEFCON,
+            "appearance": 2.0 * start,
+            "other": f["extra"],
+        },
+        "events": {
+            "goals": goals, "assists": assists, "clean_sheets": cs,
+            "defcon": dc, "appearance": start, "other": 0.0,
+        },
+    }
+
+
+def points_dna(cards, xi_ids, captain_id=None, bench_ids=(), chip=None):
+    """Where the squad's projected points come from.
+
+    The captain is counted at his multiplier, because that is where the points
+    actually land — a breakdown that ignored the armband would not add up to
+    the total shown beside it."""
+    by_id = {c["id"]: c for c in cards}
+    playing = list(xi_ids) + (list(bench_ids) if chip == "bb" else [])
+    mult = 3 if chip == "tc" else 2
+
+    points = {k: 0.0 for k in COMPONENTS}
+    events = {k: 0.0 for k in COMPONENTS}
+    n = 0
+    for pid in playing:
+        card = by_id.get(pid)
+        if card is None:
+            continue
+        broken = player_components(card)
+        if broken is None:
+            continue
+        w = mult if pid == captain_id else 1
+        for k in COMPONENTS:
+            points[k] += broken["points"][k] * w
+            events[k] += broken["events"][k] * w
+        n += 1
+    if not n:
+        return None
+    total = sum(points.values())
+    return {
+        "n": n,
+        "total": round(total, 1),
+        "rows": [
+            {"key": k, "points": round(points[k], 1),
+             "events": round(events[k], 1),
+             "share": round(points[k] / total, 4) if total else 0.0}
+            for k in COMPONENTS
+        ],
+    }
 
 
 def squad_points(cards, xi_ids, captain_id=None, bench_ids=(), chip=None,

@@ -205,3 +205,18 @@ def test_the_squad_distribution_is_exported():
     assert abs(sum(dist["pmf"]) - 1.0) < 1e-3
     assert set(dist["thresholds"]) == {"40", "60", "80"}
     assert dist["n"] == 11
+
+
+def test_the_points_breakdown_and_diagnosis_are_exported():
+    d = build()
+    dna = d["dna"]
+    assert abs(sum(r["points"] for r in dna["rows"]) - dna["total"]) < 0.5
+    # The breakdown and the curve are two views of the same eleven.
+    assert abs(dna["total"] - d["distribution"]["mean"]) < 0.5
+
+    diag = d["diagnosis"]
+    for key in ("weak_spots", "autosubs", "exposure", "template"):
+        assert key in diag, key
+    ids = {p["id"] for p in d["players"]}
+    for row in diag["weak_spots"]:
+        assert row["out"] in ids and row["in"] in ids

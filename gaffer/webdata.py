@@ -16,7 +16,7 @@ static files and nothing else.
 import json
 import os
 
-from . import distribution, explain, leaders
+from . import analysis, distribution, explain, leaders
 
 # Fields kept per player. Deliberately explicit: an accidental `**p` here would
 # ship the whole projection dict, and `ep` alone is a dict per gameweek for
@@ -135,6 +135,23 @@ def build(proj, prof, lg, elite_own, price_fc, gws, squad_ids, weeks,
             bench_ids=[p["id"] for p in now["bench"]],
             chip={"Bench Boost": "bb", "Triple Captain": "tc"}.get(now["chip"]))
             if now else None),
+        # Where the projected points come from, split into the buckets that
+        # actually produce them.
+        "dna": (distribution.points_dna(
+            list(cards.values()),
+            [p["id"] for p in now["xi"]],
+            captain_id=now["captain"]["id"],
+            bench_ids=[p["id"] for p in now["bench"]],
+            chip={"Bench Boost": "bb", "Triple Captain": "tc"}.get(now["chip"]))
+            if now else None),
+        # What is wrong with the eleven: who is being out-scored, how exposed
+        # the bench is, which clubs the week turns on.
+        "diagnosis": (analysis.build(
+            list(cards.values()),
+            [p["id"] for p in now["xi"]],
+            bench_ids=[p["id"] for p in now["bench"]],
+            captain_id=now["captain"]["id"],
+            squad_ids=list(squad_ids)) if now else None),
         "boards": leaders.build(
             list(cards.values()), gw,
             xi_ids=[p["id"] for p in now["xi"]] if now else None,

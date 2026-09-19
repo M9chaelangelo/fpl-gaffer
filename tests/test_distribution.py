@@ -157,3 +157,66 @@ def test_unknown_ids_are_skipped_not_fatal():
     cards = _eleven()
     out = dist.squad_points(cards, [c["id"] for c in cards] + [999])
     assert out["n"] == 11
+
+
+# --- where the points come from ---------------------------------------------
+
+def test_the_buckets_sum_to_the_projection():
+    """Points DNA is a decomposition, not an estimate. If the parts do not add
+    up to the whole, the chart is telling a different story from the number
+    printed above it."""
+    for ep in (2.0, 4.0, 6.5, 9.0, 13.0):
+        for pos in ("GKP", "DEF", "MID", "FWD"):
+            broken = dist.player_components(card(pos=pos, ep_next=ep))
+            assert abs(sum(broken["points"].values()) - ep) < 0.02, (pos, ep)
+
+
+def test_a_forward_earns_nothing_from_clean_sheets():
+    broken = dist.player_components(card(pos="FWD", cs_prob=0.8))
+    assert broken["points"]["clean_sheets"] == 0.0
+
+
+def test_appearance_is_worth_two_when_he_always_starts():
+    broken = dist.player_components(card(start_prob=1.0, ep_next=8.0))
+    assert abs(broken["points"]["appearance"] - 2.0) < 1e-9
+
+
+def test_events_are_counts_not_points():
+    """The page shows '~16.4 goals' beside the points they were worth, so the
+    two columns must not be the same number in different clothes."""
+    broken = dist.player_components(card(pos="DEF", ep_next=6.0, xg90=0.3))
+    g_points = broken["points"]["goals"]
+    g_events = broken["events"]["goals"]
+    assert abs(g_points - g_events * dist.GOAL["DEF"]) < 1e-9
+    assert g_events < g_points, "a defender's goal is worth six"
+
+
+def test_squad_dna_totals_the_squad_projection():
+    cards = _eleven()
+    ids = [c["id"] for c in cards]
+    dna = dist.points_dna(cards, ids)
+    assert dna["n"] == 11
+    assert abs(dna["total"] - 55.0) < 0.2
+    assert abs(sum(r["points"] for r in dna["rows"]) - dna["total"]) < 0.2
+    assert abs(sum(r["share"] for r in dna["rows"]) - 1.0) < 1e-3
+
+
+def test_squad_dna_counts_the_captain_at_his_multiplier():
+    """A breakdown that ignored the armband would not add up to the total
+    printed beside it."""
+    cards = _eleven()
+    ids = [c["id"] for c in cards]
+    plain = dist.points_dna(cards, ids)
+    capped = dist.points_dna(cards, ids, captain_id=1)
+    one = dist.player_components(cards[0])
+    assert abs((capped["total"] - plain["total"])
+               - sum(one["points"].values())) < 0.2
+
+
+def test_squad_dna_matches_the_distribution_mean():
+    """Two views of the same eleven, from the same fit. They have to agree."""
+    cards = _eleven()
+    ids = [c["id"] for c in cards]
+    dna = dist.points_dna(cards, ids, captain_id=3)
+    curve = dist.squad_points(cards, ids, captain_id=3)
+    assert abs(dna["total"] - curve["mean"]) < 0.3
