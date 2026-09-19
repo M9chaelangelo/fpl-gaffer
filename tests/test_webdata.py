@@ -174,3 +174,66 @@ def test_wildcard_block_is_exported_when_one_is_drafted():
 def test_wildcard_is_null_when_none_is_planned():
     d = build()
     assert d["wildcard"] is None
+
+
+def test_boards_are_exported_for_the_page():
+    """The Solio-shaped views are a client of this key. Ranking in Python
+    rather than the browser keeps the rules testable — and keeps the page a
+    renderer rather than a second, untested model."""
+    d = build()
+    b = d["boards"]
+    for key in ("projected", "captains", "differentials", "goals", "assists",
+                "defcon", "movers", "clean_sheets", "hauls"):
+        assert key in b, key
+    ids = {p["id"] for p in d["players"]}
+    for board in ("projected", "captains", "differentials", "goals",
+                  "assists", "defcon", "movers"):
+        for row in b[board]:
+            assert row["id"] in ids, f"{board} names a player not exported"
+            assert "name" in row and "team" in row
+    # The eleven the solve picked is what the haul distribution is over.
+    assert b["hauls"] is None or b["hauls"]["n"] <= 11
+
+
+def test_the_squad_distribution_is_exported():
+    """The Lineup view's curve. Its mean has to agree with the week's own
+    projected total, or the page states two different numbers for the same
+    eleven."""
+    d = build()
+    dist = d["distribution"]
+    assert dist is not None
+    assert abs(sum(dist["pmf"]) - 1.0) < 1e-3
+    assert set(dist["thresholds"]) == {"40", "60", "80"}
+    assert dist["n"] == 11
+
+
+def test_the_points_breakdown_and_diagnosis_are_exported():
+    d = build()
+    dna = d["dna"]
+    assert abs(sum(r["points"] for r in dna["rows"]) - dna["total"]) < 0.5
+    # The breakdown and the curve are two views of the same eleven.
+    assert abs(dna["total"] - d["distribution"]["mean"]) < 0.5
+
+    diag = d["diagnosis"]
+    for key in ("weak_spots", "autosubs", "exposure", "template"):
+        assert key in diag, key
+    ids = {p["id"] for p in d["players"]}
+    for row in diag["weak_spots"]:
+        assert row["out"] in ids and row["in"] in ids
+
+
+def test_the_fixture_ticker_is_exported_with_string_keys():
+    """JSON has no integer keys, so the page would have to coerce them back.
+    Exporting them as strings keeps that conversion in one place."""
+    gws = [5, 6, 7]
+    proj, prof, lg, pf, squad_ids, weeks = _ctx(gws)
+    ticker = {5: [{"h": "ARS", "a": "LIV"}], 6: [{"h": "MCI", "a": "CHE"}]}
+    d = webdata.build(proj, prof, lg, {1: 0.6}, pf, gws, squad_ids, weeks,
+                      "Fri 18 Sep 18:30", gws[0], hit_verdict="Roll it.",
+                      clean_sheets=[], ticker=ticker)
+    assert set(d["ticker"]) == {"5", "6"}
+    assert d["ticker"]["5"][0]["h"] == "ARS"
+
+
+def test_no_ticker_is_an_empty_map_not_a_missing_key():
+    assert build()["ticker"] == {}
