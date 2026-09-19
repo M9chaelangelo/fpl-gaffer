@@ -11,7 +11,12 @@
  */
 "use strict";
 
-const S = { data: null, view: "team", sort: { key: "ep_next", dir: -1 }, cmp: [null, null] };
+const S = {
+  data: null, view: "team", sort: { key: "ep_next", dir: -1 }, cmp: [null, null],
+  wcWeek: null,   // which gameweek of the rebuild the pitch is showing
+};
+
+const VIEWS = ["team", "wildcard", "players", "compare", "plan"];
 
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => {
@@ -62,16 +67,16 @@ async function boot() {
     (d.league && d.league.behind != null
       ? ` · ${d.league.behind} pts off top of ${d.league.teams} in your league` : "");
 
-  for (const v of ["team", "players", "compare", "plan"]) {
+  for (const v of VIEWS) {
     $("tab-" + v).addEventListener("click", () => show(v));
   }
-  renderTeam(); renderPlayers(); renderCompare(); renderPlan();
+  renderTeam(); renderWildcard(); renderPlayers(); renderCompare(); renderPlan();
   show("team");
 }
 
 function show(v) {
   S.view = v;
-  for (const name of ["team", "players", "compare", "plan"]) {
+  for (const name of VIEWS) {
     $("view-" + name).classList.toggle("hidden", name !== v);
     $("tab-" + name).setAttribute("aria-selected", String(name === v));
   }
@@ -126,19 +131,197 @@ function renderTeam() {
   ));
 }
 
-function playerTile(p, isCaptain) {
+function playerTile(p, isCaptain, fixture, ep) {
   const n = el("button", "pl");
+  const xp = ep === undefined ? p.ep_next : ep;
   n.type = "button";
-  n.setAttribute("aria-label", `${p.name}, ${p.pos}, ${fmt(p.ep_next)} projected points`);
+  n.setAttribute("aria-label", `${p.name}, ${p.pos}, ${fmt(xp)} projected points`);
   n.append(el("div", "pl-name", p.name));
-  n.append(el("div", "pl-opp", p.fixtures[0] || ""));
-  n.append(el("div", "pl-xp", fmt(p.ep_next)));
+  n.append(el("div", "pl-opp", fixture !== undefined ? fixture : (p.fixtures[0] || "")));
+  n.append(el("div", "pl-xp", fmt(xp)));
   n.append(el("div", "pl-own", `${p.team} · ${fmt(p.price, "money")}`));
   if (isCaptain) { const b = el("span", "badge badge-c", "C"); n.append(b); }
   else if (p.status && p.status !== "a") { n.append(el("span", "badge badge-f", "!")); }
   // Tapping a player opens him in Compare — the obvious next question.
   n.addEventListener("click", () => { S.cmp[0] = p.id; renderCompare(); show("compare"); });
   return n;
+}
+
+/* --- wildcard: the rebuild ---------------------------------------------- */
+
+/** The fixture string for a gameweek, or "" once the draft runs past the
+ *  weeks the player cards carry. The rebuild looks further ahead than the
+ *  weekly solve, so some of its weeks have no card data — better blank than
+ *  the wrong opponent. */
+function fixtureFor(p, gw) {
+  const i = S.data.gameweeks.indexOf(gw);
+  return i >= 0 && p.fixtures ? (p.fixtures[i] || "") : "";
+}
+
+/** Projected points for a specific gameweek. The rebuild's later weeks are
+ *  outside the weekly horizon, so they come from `ep_wc`, which the export
+ *  writes alongside the draft. */
+function epFor(p, gw) {
+  const wc = S.data.wildcard;
+  if (wc && p.ep_wc) {
+    const i = wc.gws.indexOf(gw);
+    if (i >= 0) return p.ep_wc[i];
+  }
+  const j = S.data.gameweeks.indexOf(gw);
+  return j >= 0 && p.ep ? p.ep[j] : p.ep_next;
+}
+
+function renderWildcard() {
+  const root = $("view-wildcard");
+  root.replaceChildren();
+  const d = S.data;
+  const wc = d.wildcard;
+
+  if (!wc) {
+    const c = el("div", "card");
+    c.append(el("div", "headline", "No wildcard drafted"));
+    c.append(el("p", "verdict",
+      "Put the gameweek in config.yaml under chip_plan: wc, and the next run " +
+      "drafts the squad. Nothing here is guesswork the page can do on its own."));
+    root.append(c);
+    return;
+  }
+
+  const first = wc.weeks[0];
+  if (S.wcWeek === null || !wc.weeks.some((w) => w.gw === S.wcWeek)) {
+    S.wcWeek = first.gw;
+  }
+  const week = wc.weeks.find((w) => w.gw === S.wcWeek) || first;
+
+  const head = el("div", "card");
+  head.append(el("div", "headline", `The GW${wc.for_gw} wildcard`));
+  head.append(el("p", "verdict",
+    `${fmt(wc.cost, "money")}m spent · ${fmt(wc.in_bank, "money")}m in the bank · ` +
+    `${wc.change.keep.length} of your fifteen survive, ${wc.change.buy.length} arrive`));
+  head.append(el("p", "note",
+    `Drafted over GW${wc.gws[0]}–GW${wc.gws[wc.gws.length - 1]} from ` +
+    `${wc.pool_size} candidates, priced at ${fmt(wc.budget, "money")}m.`));
+  if (wc.assumes_no_transfers) {
+    head.append(el("p", "note",
+      "Priced on today's squad value, which assumes no transfers between now " +
+      "and the wildcard. If you make one, the budget moves."));
+  }
+  if (wc.optimal === false) {
+    head.append(el("p", "note",
+      "The solver hit its time limit — best found, not a proven optimum."));
+  }
+  root.append(head);
+
+  // Week switcher. A rebuild is bought for a run of fixtures, so being able to
+  // see week four is the difference between a squad and a screenshot.
+  const picker = el("div", "card weekpick");
+  picker.append(el("span", "label", "Line-up for"));
+  const brow = el("div", "row-pos");
+  wc.weeks.forEach((w, i) => {
+    // "GW6 7 8 9…": only the first carries the prefix, so eight weeks fit a
+    // phone instead of scrolling off the edge mid-word.
+    const b = el("button", "wk" + (w.gw === S.wcWeek ? " on" : ""),
+      (i === 0 ? "GW" : "") + w.gw + (w.chip ? " ★" : ""));
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(w.gw === S.wcWeek));
+    b.setAttribute("aria-label",
+      `Gameweek ${w.gw}${w.chip ? ", " + w.chip : ""}`);
+    b.addEventListener("click", () => { S.wcWeek = w.gw; renderWildcard(); });
+    brow.append(b);
+  });
+  picker.append(brow);
+  if (wc.weeks.some((w) => w.chip)) {
+    picker.append(el("p", "note", "★ is a chip week — " + wc.weeks
+      .filter((w) => w.chip).map((w) => `GW${w.gw} ${w.chip}`).join(", ") + "."));
+  }
+  root.append(picker);
+
+  const sub = el("div", "card");
+  sub.append(el("div", "headline",
+    `${week.formation} · ${week.ep} projected` + (week.chip ? ` · ${week.chip}` : "")));
+  sub.append(el("p", "note", `Captain ${byId(week.captain).name}.`));
+  root.append(sub);
+
+  const pitch = el("div", "pitch");
+  const xi = week.xi.map(byId);
+  for (const pos of POS_ORDER) {
+    const group = xi.filter((p) => p.pos === pos)
+      .sort((a, b) => epFor(b, week.gw) - epFor(a, week.gw));
+    if (!group.length) continue;
+    const row = el("div", "row-pos");
+    group.forEach((p) => row.append(playerTile(
+      p, p.id === week.captain, fixtureFor(p, week.gw), epFor(p, week.gw))));
+    pitch.append(row);
+  }
+  root.append(pitch);
+
+  const bench = el("div", "card benchbar");
+  bench.append(el("span", "label", "Bench — in substitution order"));
+  const bpitch = el("div", "row-pos");
+  week.bench.map(byId).forEach((p) => bpitch.append(
+    playerTile(p, false, fixtureFor(p, week.gw), epFor(p, week.gw))));
+  bench.append(bpitch);
+  root.append(bench);
+
+  root.append(changeCard("Sold", wc.change.sell, "fall"));
+  root.append(changeCard("Bought", wc.change.buy, "rise"));
+  if (wc.change.keep.length) root.append(changeCard("Kept", wc.change.keep, "mute"));
+
+  // Bars, not a line. The weeks sit inside a narrow band, and a line chart
+  // with an honest zero baseline flattens the whole run into one horizontal
+  // stroke — which is precisely the comparison this chart exists to make.
+  // Direct-labelled bars keep the baseline and still show the difference.
+  root.append(chartCard(
+    "The run you are buying",
+    barChart(wc.weeks.map((w) => ({
+      label: "GW" + w.gw, value: w.ep, sub: w.chip || "",
+    })), { unit: "pts", series: "var(--series-1)" }),
+    "Projected points per gameweek for the drafted fifteen, chips included. " +
+    "No transfers after the wildcard — this is the squad standing still."
+  ));
+
+  if (wc.swaps && wc.swaps.length) {
+    const c = el("div", "card");
+    c.append(el("h3", null, "The closest calls"));
+    const wrap = el("div", "tablewrap");
+    const t = el("table");
+    const head2 = el("tr");
+    ["Drafted", "Nearest alternative", "Costs you"].forEach((h, i) => {
+      const th = el("th", i === 2 ? "n" : null, h);
+      head2.append(th);
+    });
+    t.append(head2);
+    wc.swaps.slice(0, 8).forEach((r) => {
+      const tr = el("tr");
+      tr.append(el("td", null, byId(r.out).name));
+      tr.append(el("td", null, r.in ? byId(r.in).name : "—"));
+      tr.append(el("td", "n", r.gap == null ? "—" : r.gap.toFixed(2)));
+      tr.addEventListener("click", () => {
+        S.cmp = [r.out, r.in || null]; renderCompare(); show("compare");
+      });
+      t.append(tr);
+    });
+    wrap.append(t);
+    c.append(wrap);
+    c.append(el("p", "note",
+      "Points over the whole draft horizon, holding the other fourteen fixed. " +
+      "Near zero is a coin toss — take the player you want to watch. " +
+      "Tap a row to compare the two."));
+    root.append(c);
+  }
+}
+
+function changeCard(title, ids, tone) {
+  const c = el("div", "card");
+  c.append(el("span", "label", `${title} — ${ids.length}`));
+  const row = el("div", "chips");
+  if (!ids.length) row.append(el("span", "chip-" + tone, "nobody"));
+  ids.map(byId).forEach((p) => {
+    row.append(el("span", "chip-" + tone,
+      `${p.name} ${fmt(p.price, "money")}`));
+  });
+  c.append(row);
+  return c;
 }
 
 /* --- players: filter and sort ------------------------------------------- */

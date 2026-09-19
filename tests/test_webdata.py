@@ -140,3 +140,37 @@ def test_no_ep_dict_leaks_into_the_payload(tmp_path):
     raw = json.dumps(d)
     assert '"opp"' not in raw
     assert '"team_id"' not in raw
+
+
+def test_wildcard_block_is_exported_when_one_is_drafted():
+    """The Wildcard tab is a client of this key. Exporting ids only is
+    deliberate — the cards are already in `players`, and a second copy would
+    add a third to a file that is downloaded on a phone."""
+    gws = [5, 6, 7]
+    proj, prof, lg, pf, squad_ids, weeks = _ctx(gws)
+    wc = {
+        "for_gw": 6, "squad": list(range(1, 16)), "cost": 99.4, "budget": 100.0,
+        "in_bank": 0.6, "gws": [6, 7, 8], "score": 410.2, "optimal": True,
+        "pool_size": 188, "assumes_no_transfers": True,
+        "spend": {"GKP": 9.0, "DEF": 25.0, "MID": 40.0, "FWD": 25.4},
+        "weeks": [{"gw": 6, "xi": list(range(1, 12)), "bench": [12, 13, 14, 15],
+                   "formation": "3-5-2", "captain": 1, "chip": None, "ep": 71.0}],
+        "swaps": [{"out": 3, "in": 17, "gap": 0.4}],
+        "change": {"keep": [1], "sell": [2], "buy": [16]},
+    }
+    d = webdata.build(proj, prof, lg, {1: 0.6}, pf, gws, squad_ids, weeks,
+                      "Fri 18 Sep 18:30", gws[0], hit_verdict="Roll it.",
+                      clean_sheets=[], wildcard=wc)
+    assert d["wildcard"]["for_gw"] == 6
+    assert len(d["wildcard"]["squad"]) == 15
+    assert d["wildcard"]["weeks"][0]["captain"] == 1
+    # Ids, so every one of them has to resolve against the exported cards.
+    ids = {p["id"] for p in d["players"]}
+    for pid in d["wildcard"]["squad"] + d["wildcard"]["weeks"][0]["bench"]:
+        assert pid in ids
+    assert json.loads(json.dumps(d["wildcard"])) == wc
+
+
+def test_wildcard_is_null_when_none_is_planned():
+    d = build()
+    assert d["wildcard"] is None

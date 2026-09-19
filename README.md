@@ -250,6 +250,47 @@ argue with is one you cannot correct.
 - Solio's projections for the upcoming gameweek
 - Your mini-league's 42 squads, for effective ownership
 
+## The wildcard
+
+A wildcard is not a transfer, so it does not come out of the transfer model.
+`wildcard.py` gives it its own solve, for one reason above all others: the
+weekly model's candidate pool is the top hundred and thirty players by
+projected points, and a rebuild is decided by the players who are *not* on that
+list. Three premiums only fit if four-pound defenders carry them, and the
+cheapest player in a top-130 pool costs five and a half.
+
+So the pool is stratified — the best few in every position and price band, plus
+the cheapest players in the game outright — which guarantees the enablers exist
+before the solver starts arguing about money. Three other differences:
+
+- **The horizon is longer** (`wildcard_horizon`, default eight weeks). You are
+  buying a fixture run, not a weekend.
+- **Chips you have committed to are known, not decisions.** A Bench Boost in a
+  known week is simply a week where the bench pays full price. That removes
+  every bilinear term from the model, which is what pays for the bigger pool.
+- **Nothing is bought or sold after the draft.** Assuming you will also make
+  perfect transfers afterwards flatters every squad by about the same amount
+  and hides the differences between them — the only thing this is measuring.
+
+It runs whenever `chip_plan.wc` falls inside the horizon, or on demand:
+
+```
+python -m gaffer.main --wildcard 6
+```
+
+`wildcard_keep` and `wildcard_ban` in `config.yaml` force players in or out.
+Both are the argument, not the override: forcing a pick costs points, and the
+report prints what it cost.
+
+Every drafted player comes with the nearest alternative you could have
+afforded and the gap between them, over the whole horizon, holding the other
+fourteen fixed. A gap near zero is a coin toss — take the player you want to
+watch.
+
+The budget is your bank plus the selling value of all fifteen. If the wildcard
+is weeks away, that assumes you make no transfers in between; the page says so
+rather than hiding it.
+
 ## The value of waiting
 
 The optimiser scores every future gameweek with today's projections, so left
@@ -357,10 +398,16 @@ solve writes, and runs entirely in the browser — no framework, no build step, 
 CDN. GitHub Pages serves static files, and a dependency that 404s on a Friday
 evening is worse than no dependency.
 
-Four views:
+Five views:
 
 - **Team** — your eleven laid out on a pitch by position, captain and flags
   marked, projection on every card. Tap a player to open him in Compare.
+- **Wildcard** — the drafted fifteen on a pitch, with a week switcher so you
+  can see the line-up in every gameweek of the rebuild rather than only the
+  first. Who is sold, who is bought, who survives; the projected run as a bar
+  per gameweek with the chip weeks marked; and the closest calls — for each
+  drafted player, the nearest alternative you could afford and what taking him
+  would cost.
 - **Players** — every player in the pool, filterable by position, club, price,
   availability and your own squad, sortable on any column. Tap a row to compare.
 - **Compare** — any two players across sixteen metrics, normalised so the longer
@@ -431,8 +478,8 @@ Checked against the official rules page and the 2026/27 change notes.
 python -m pytest tests -q
 ```
 
-Sixty-two of them, covering the planner, the page it renders, and the ceiling
-model's wiring. They run on
+Eighty-four of them, covering the planner, the wildcard drafter, the page they
+render, and the ceiling model's wiring. They run on
 a synthetic squad — no network, no API, no solver — because the rules they
 check are exactly the ones that are expensive to get wrong and impossible to
 spot by eye on a Friday evening.

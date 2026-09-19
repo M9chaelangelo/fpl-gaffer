@@ -46,23 +46,15 @@ elite_sample: 100      # how many of the world's top managers to sample
 # The public API only shows last gameweek's team, and transfers you have already
 # made for the upcoming deadline are invisible to it. If you have moved this
 # week, list all fifteen here and set the bank. Comment it out to use the API.
-current_squad:
-  - Lammens
-  - Kinsky
-  - Maguire
-  - Ajer
-  - Thomas
-  - Egan
-  - N.Williams
-  - Elanga
-  - Wirtz
-  - Szoboszlai
-  - Rogers
-  - Ndiaye
-  - Haaland
-  - Isak
-  - João Pedro
-bank: 1.4
+# GW5 has kicked off, so the API now returns the squad that actually played —
+# Szoboszlai out, Gibbs-White in — and the real bank with it. A hand-kept list
+# can only be wrong from here, and a wildcard drafted against the wrong
+# fifteen is drafted against the wrong budget. Put it back the moment you make
+# a transfer for a deadline that has not passed yet.
+# current_squad:
+#   - Lammens
+#   ...
+# bank: 1.4
 
 # --- locked chip plan --------------------------------------------------------
 # Gameweeks you have committed to. The solver stops re-deciding these every week
@@ -72,6 +64,23 @@ chip_plan:
   tc: 7      # Triple Captain — Haaland home to Ipswich, 13.9 projected vs 9.0 in GW3
   wc: 6      # Wildcard, 10 Oct, first week after the international break
   bb: 9      # Bench Boost — see notes; GW7 clashes with the best Haaland fixture
+
+# --- the rebuild -------------------------------------------------------------
+# A wildcard gets its own solve, because it is a different question from a
+# transfer: fifteen players from nothing, and the cheap end is what funds the
+# expensive end. `chip_plan.wc` above says which gameweek; these say how it is
+# drafted. Run `--wildcard N` to draft one for gameweek N without committing
+# the chip in `chip_plan`.
+wildcard_horizon: 8        # gameweeks the rebuild is judged over
+wildcard_per_cell: 14      # candidates per position and price band
+wildcard_cheap_per_pos: 6  # cheapest players kept regardless of points
+wildcard_min_minutes: 20   # below this he is a body, not a squad slot
+wildcard_time_limit: 180   # seconds
+# Names you want in or out of the rebuild whatever the model thinks. This is
+# the argument, not the override — every forced pick costs points, and the
+# report prints what it cost.
+# wildcard_keep: [Haaland]
+# wildcard_ban: []
 
 # --- your own plan -----------------------------------------------------------
 # Write what you actually intend to do, and the report checks it against the
