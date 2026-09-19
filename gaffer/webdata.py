@@ -16,7 +16,7 @@ static files and nothing else.
 import json
 import os
 
-from . import explain
+from . import explain, leaders
 
 # Fields kept per player. Deliberately explicit: an accidental `**p` here would
 # ship the whole projection dict, and `ep` alone is a dict per gameweek for
@@ -76,6 +76,10 @@ def build(proj, prof, lg, elite_own, price_fc, gws, squad_ids, weeks,
                             for g in wildcard["gws"]]
         cards[pid] = row
 
+    # The category boards Solio organises its front page around: who to
+    # captain, where the leverage is, who scores, who keeps it out. Computed
+    # here rather than in the browser so the page stays a renderer and the
+    # ranking rules stay testable.
     now = weeks[0] if weeks else None
     squad = []
     if now:
@@ -122,6 +126,11 @@ def build(proj, prof, lg, elite_own, price_fc, gws, squad_ids, weeks,
         # The one number on the page a human can check against what they
         # actually watched on Saturday.
         "team_form": team_form or [],
+        "boards": leaders.build(
+            list(cards.values()), gw,
+            xi_ids=[p["id"] for p in now["xi"]] if now else None,
+            captain_id=now["captain"]["id"] if now else None,
+            clean_sheets=clean_sheets or []),
         "clean_sheets": clean_sheets or [],
         "planner": planner,
         "league": {

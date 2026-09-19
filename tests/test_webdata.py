@@ -174,3 +174,22 @@ def test_wildcard_block_is_exported_when_one_is_drafted():
 def test_wildcard_is_null_when_none_is_planned():
     d = build()
     assert d["wildcard"] is None
+
+
+def test_boards_are_exported_for_the_page():
+    """The Solio-shaped views are a client of this key. Ranking in Python
+    rather than the browser keeps the rules testable — and keeps the page a
+    renderer rather than a second, untested model."""
+    d = build()
+    b = d["boards"]
+    for key in ("projected", "captains", "differentials", "goals", "assists",
+                "defcon", "movers", "clean_sheets", "hauls"):
+        assert key in b, key
+    ids = {p["id"] for p in d["players"]}
+    for board in ("projected", "captains", "differentials", "goals",
+                  "assists", "defcon", "movers"):
+        for row in b[board]:
+            assert row["id"] in ids, f"{board} names a player not exported"
+            assert "name" in row and "team" in row
+    # The eleven the solve picked is what the haul distribution is over.
+    assert b["hauls"] is None or b["hauls"]["n"] <= 11
