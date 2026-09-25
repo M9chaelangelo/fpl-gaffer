@@ -151,6 +151,12 @@ def team_strength(boot, prior_games=6.0, fixtures=None, form_weight=0.0,
             float(e["expected_assists"])
         mins[t] = mins.get(t, 0) + e["minutes"]
         xgc[t] = xgc.get(t, 0.0) + float(e["expected_goals_conceded_per_90"])
+    if not mins:
+        # Nobody has played forty-five minutes yet — preseason, or the first
+        # round before a ball is kicked. Every side is average until one has.
+        # Crashing here would take the whole solve with it.
+        flat = {t["id"]: 1.0 for t in boot["teams"]}
+        return flat, dict(flat)
     games = {t: max(1.0, m / (11 * 90)) for t, m in mins.items()}
     raw_atk = {t: xg.get(t, 0.0) / games[t] for t in games}
     # Shrink toward the league mean. Two matches will cheerfully claim a side
@@ -223,11 +229,24 @@ def build(boot, fixtures, gws, solio_feed=None, solio_weight=0.7,
         avg_min = mins / played
         exp_min = (0.8 * avg_min + 0.2 * 90) if avg_min >= 70 else 0.85 * avg_min
         exp_min = min(90.0, exp_min) * _availability(e)
-        base_exp_min = exp_min
         if p60 is not None and mins > 0:
             # Blend the heuristic with the learned start probability.
-            exp_min = 0.4 * exp_min + 0.6 * (p60[e["id"]] * 82 + (1 - p60[e["id"]]) * 20)
+            #
+            # The blend used to be computed into a variable the gameweek loop
+            # below never read — it took the pre-blend heuristic instead. So
+            # the one trained model that was actually loaded moved no
+            # projection at all; it survived only as a number on the card.
+            #
+            # And if he does not start, he does not play twenty minutes. A
+            # flat twenty put a twelve-minute floor under every footballer in
+            # the game, including one who has played once since August. The
+            # cameo is capped by what he has actually averaged, so a man with
+            # a minute to his name gets a minute.
+            p = p60[e["id"]]
+            cameo = min(18.0, avg_min)
+            exp_min = 0.4 * exp_min + 0.6 * (p * 82 + (1 - p) * cameo)
             exp_min *= _availability(e)
+        base_exp_min = exp_min
 
         # Shrink hard early in the season; trust observed rate more as minutes accrue.
         w = min(0.55, mins / 1200)

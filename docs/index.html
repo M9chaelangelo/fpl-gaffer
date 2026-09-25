@@ -4,46 +4,73 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Gaffer</title>
-<meta name="color-scheme" content="light dark">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#080b11">
 <link rel="stylesheet" href="app.css">
-<!-- Inline so the page stays a three-file deploy and the browser stops
-     probing for a favicon that is not there. The README tells you to add
-     this to your home screen, so it needs an icon. -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232a78d6'/%3E%3Ctext x='16' y='23' font-size='20' font-family='system-ui' font-weight='700' fill='white' text-anchor='middle'%3EG%3C/text%3E%3C/svg%3E">
+<!-- Inline so the page stays a three-file deploy and the browser stops probing
+     for a favicon that is not there. The README says to add this to your home
+     screen, so it needs an icon. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f2653a'/%3E%3Ctext x='16' y='23' font-size='19' font-family='system-ui' font-weight='700' fill='%23190701' text-anchor='middle'%3EG%3C/text%3E%3C/svg%3E">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Gaffer">
 </head>
 <body>
+
 <header class="top">
-  <div class="wrap" style="padding:0">
-    <div class="brand">Gaffer</div>
-    <div class="sub" id="sub">Loading…</div>
-    <nav class="tabs" role="tablist" aria-label="Views">
-      <button class="tab" role="tab" id="tab-team"    aria-selected="true"  aria-controls="view-team">Team</button>
-      <button class="tab" role="tab" id="tab-wildcard" aria-selected="false" aria-controls="view-wildcard">Wildcard</button>
-      <button class="tab" role="tab" id="tab-players" aria-selected="false" aria-controls="view-players">Players</button>
-      <button class="tab" role="tab" id="tab-compare" aria-selected="false" aria-controls="view-compare">Compare</button>
-      <button class="tab" role="tab" id="tab-plan"    aria-selected="false" aria-controls="view-plan">Plan</button>
-    </nav>
+  <div class="wrap">
+    <div class="brandrow">
+      <span class="brand">Gaffer</span>
+      <span class="sub" id="sub">loading…</span>
+    </div>
+    <div class="chips-row" id="chips"></div>
   </div>
 </header>
 
 <main class="wrap">
-  <p id="loading" class="muted">Fetching the latest solve…</p>
+  <p id="loading" class="muted" style="padding:20px 0">Fetching the latest solve…</p>
   <p id="failed" class="err hidden"></p>
 
-  <section id="view-team"    role="tabpanel" aria-labelledby="tab-team"></section>
-  <section id="view-wildcard" role="tabpanel" aria-labelledby="tab-wildcard" class="hidden"></section>
-  <section id="view-players" role="tabpanel" aria-labelledby="tab-players" class="hidden"></section>
-  <section id="view-compare" role="tabpanel" aria-labelledby="tab-compare" class="hidden"></section>
-  <section id="view-plan"    role="tabpanel" aria-labelledby="tab-plan"    class="hidden"></section>
+  <section id="view-overview"    role="tabpanel" aria-labelledby="tab-overview"></section>
+  <section id="view-lineup"      role="tabpanel" aria-labelledby="tab-lineup"      class="hidden"></section>
+  <section id="view-projections" role="tabpanel" aria-labelledby="tab-projections" class="hidden"></section>
+  <section id="view-optimise"    role="tabpanel" aria-labelledby="tab-optimise"    class="hidden"></section>
+  <section id="view-plans"       role="tabpanel" aria-labelledby="tab-plans"       class="hidden"></section>
+  <section id="view-more"        role="tabpanel" aria-labelledby="tab-more"        class="hidden"></section>
 
-  <p class="note">
+  <p class="note" style="margin:22px 0 8px">
     Projections blend Solio Analytics' public feed with a local model.
     Recommendations, not instructions — you press the button.
-    <a href="report.html">Plain report</a> works without JavaScript.
+    <a href="report.html" style="color:var(--ink-2)">Plain report</a> works without JavaScript.
   </p>
 </main>
+
+<nav class="nav" role="tablist" aria-label="Views">
+  <button role="tab" id="tab-overview" aria-selected="true" aria-controls="view-overview">
+    <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="5" rx="1"/><rect x="2" y="16" width="6" height="5" rx="1"/><rect x="16" y="16" width="6" height="5" rx="1"/><path d="M12 8v4M5 16v-2h14v2"/></svg>
+    Overview
+  </button>
+  <button role="tab" id="tab-lineup" aria-selected="false" aria-controls="view-lineup">
+    <svg viewBox="0 0 24 24"><path d="M8 3 5 5 3 9l3 2v10h12V11l3-2-2-4-3-2a3 3 0 0 1-6 0Z"/></svg>
+    Lineup
+  </button>
+  <button role="tab" id="tab-projections" aria-selected="false" aria-controls="view-projections">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 6h7M14 10h7M14 17h7M14 21h7"/></svg>
+    Projections
+  </button>
+  <button role="tab" id="tab-optimise" aria-selected="false" aria-controls="view-optimise">
+    <svg viewBox="0 0 24 24"><path d="M4 16c3 0 3-8 6-8s3 8 6 8 4-3 4-3"/><circle cx="4" cy="16" r="2"/><circle cx="20" cy="13" r="2"/></svg>
+    Optimise
+  </button>
+  <button role="tab" id="tab-plans" aria-selected="false" aria-controls="view-plans">
+    <svg viewBox="0 0 24 24"><path d="M9 3h6v4l4 12a3 3 0 0 1-3 4H8a3 3 0 0 1-3-4L9 7Z"/><path d="M7 14h10"/></svg>
+    Plans
+  </button>
+  <button role="tab" id="tab-more" aria-selected="false" aria-controls="view-more">
+    <svg viewBox="0 0 24 24" id="more-icon"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    More
+  </button>
+</nav>
 
 <script src="app.js"></script>
 </body>
