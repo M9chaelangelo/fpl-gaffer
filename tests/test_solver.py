@@ -37,10 +37,16 @@ def test_it_prefers_the_backend_that_survives_pulp_4(monkeypatch):
 
 def test_it_falls_back_when_coin_cmd_has_no_binary(monkeypatch):
     """PuLP 3 without the extra: COIN_CMD is importable but finds nothing, and
-    the bundled binary is the only one there is."""
+    the bundled binary is the only one there is.
+
+    `PULP_CBC_CMD` is set here rather than assumed, because under PuLP 4 it is
+    gone and this test would otherwise be asserting the installed version
+    instead of the fallback."""
+    bundled = type("PULP_CBC_CMD", (), {})
+    monkeypatch.setattr(pulp, "PULP_CBC_CMD", bundled, raising=False)
     monkeypatch.setattr(solver, "_probe",
                         lambda cls: cls is not pulp.COIN_CMD)
-    assert solver.backend() is pulp.PULP_CBC_CMD
+    assert solver.backend() is bundled
 
 
 def test_a_backend_pulp_no_longer_has_is_skipped(monkeypatch):
@@ -98,3 +104,51 @@ def test_the_choice_is_made_once(monkeypatch):
     solver.backend()
     solver.backend()
     assert len(calls) == 1
+
+
+def test_the_status_is_a_word_on_pulp_3():
+    """An int and a lookup table."""
+    assert solver.status_name(1) == "Optimal"
+    assert solver.status_name(-1) == "Infeasible"
+    assert solver.status_name(0) == "Not Solved"
+
+
+def test_the_status_is_the_same_word_on_an_enum():
+    """PuLP 4 dropped the table. If a status arrives as an enum and we spell it
+    `OPTIMAL`, the wildcard drafter's `status == "Optimal"` quietly turns every
+    good squad into an unconfirmed one."""
+    import enum
+
+    class LpStatus(enum.Enum):
+        OPTIMAL = 1
+        NOT_SOLVED = 0
+
+    assert solver.status_name(LpStatus.OPTIMAL) == "Optimal"
+    assert solver.status_name(LpStatus.NOT_SOLVED) == "Not Solved"
+
+
+def test_an_unknown_status_is_shown_rather_than_swallowed():
+    """A number nobody recognises still has to reach the error message."""
+    assert solver.status_name(-99) == "-99"
+
+
+def test_a_real_solve_survives_pulp_4(monkeypatch):
+    """The two names 4.0 actually removed, removed — and a model solved anyway.
+
+    This is the test that would have caught the break. Both CI failures were a
+    top-level `pulp` attribute vanishing: first `LpVariable`'s `cat`, then
+    `LpStatus`. Neither is reachable from a normal run on PuLP 3, so nothing
+    here noticed until the runner installed the new major.
+    """
+    monkeypatch.delattr(pulp, "LpStatus", raising=False)
+    monkeypatch.delattr(pulp, "PULP_CBC_CMD", raising=False)
+    solver._chosen = None
+
+    m = pulp.LpProblem("pulp4", pulp.LpMaximize)
+    a = m.add_variable("a", cat="Binary")
+    b = m.add_variable("b", lowBound=0, upBound=4, cat="Integer")
+    m += 5 * a + b
+    m += a + b <= 3
+
+    assert solver.solve(m, 10) == "Optimal"
+    assert a.value() == 1 and b.value() == 2

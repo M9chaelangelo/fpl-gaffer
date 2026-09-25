@@ -15,6 +15,12 @@ looks precisely like an unsolvable one: the wildcard drafter raises "no legal
 squad for 100.0m" either way. A crash is honest; that is not.
 
 So ask which of them can actually reach a binary, newest first.
+
+`LpStatus` went the same way, and it is the same trap in miniature: the
+wildcard drafter decides whether it trusts a squad by comparing the status to
+the word "Optimal". A status that arrives as `1`, or as an enum, silently
+fails that comparison and a perfectly good rebuild is reported as one the
+solver could not confirm. So the status becomes a word here, once.
 """
 import warnings
 
@@ -23,6 +29,12 @@ import pulp
 # Newest first: COIN_CMD is the one that survives PuLP 4, PULP_CBC_CMD is the
 # bundled binary that does not.
 BACKENDS = ("COIN_CMD", "PULP_CBC_CMD")
+
+# PuLP 3 exposes this mapping as `pulp.LpStatus`; 4.0 does not. Five entries
+# that have not moved in a decade, kept here so a solver that gives up says
+# "Infeasible" to the person reading the error rather than "-1".
+STATUS = {0: "Not Solved", 1: "Optimal", -1: "Infeasible",
+          -2: "Unbounded", -3: "Undefined"}
 
 _chosen = None
 
@@ -57,7 +69,17 @@ def backend():
     return _chosen
 
 
+def status_name(status):
+    """The solver's verdict as a word, whether PuLP hands back an int or an
+    enum. Both shapes have to produce the same spelling, because callers
+    compare it to one."""
+    name = getattr(status, "name", None)
+    if isinstance(name, str):
+        return name.replace("_", " ").title()      # OPTIMAL -> Optimal
+    return STATUS.get(status, str(status))
+
+
 def solve(model, time_limit):
     """Solve `model` quietly under a time limit; return the status name."""
     model.solve(backend()(msg=0, timeLimit=time_limit))
-    return pulp.LpStatus[model.status]
+    return status_name(model.status)
