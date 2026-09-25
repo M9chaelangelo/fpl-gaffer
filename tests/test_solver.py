@@ -85,6 +85,21 @@ def test_probe_survives_a_backend_that_cannot_be_built():
     assert solver._probe(Explodes) is False
 
 
+def test_the_status_comes_off_the_return_value_not_the_model():
+    """PuLP 4 removed `LpProblem.status` and returns a stats object instead.
+    PuLP 3 returns the integer. Reading the return value is the only thing that
+    works on both."""
+    class Stats:
+        status = 1
+
+    class Model:
+        def solve(self, s):
+            return Stats()
+
+    assert solver.status_name(getattr(Stats(), "status", Stats())) == "Optimal"
+    assert solver.status_name(getattr(1, "status", 1)) == "Optimal"
+
+
 def test_solve_returns_the_status_name_and_the_answer():
     m = pulp.LpProblem("t", pulp.LpMaximize)
     a = m.add_variable("a", cat="Binary")
@@ -113,18 +128,35 @@ def test_the_status_is_a_word_on_pulp_3():
     assert solver.status_name(0) == "Not Solved"
 
 
-def test_the_status_is_the_same_word_on_an_enum():
-    """PuLP 4 dropped the table. If a status arrives as an enum and we spell it
-    `OPTIMAL`, the wildcard drafter's `status == "Optimal"` quietly turns every
-    good squad into an unconfirmed one."""
+def test_the_status_is_the_same_word_on_pulp_4s_enum():
+    """The real shape: PuLP 4 returns `LpSolveStatus.NotSolved`, where PuLP 3's
+    table said "Not Solved". Spelled `Notsolved`, the wildcard drafter's
+    `status == "Optimal"` still works — but every other verdict a human reads
+    in an error message is subtly wrong, and `TimeLimit` is one of them."""
     import enum
 
-    class LpStatus(enum.Enum):
+    class LpSolveStatus(enum.Enum):          # as PuLP 4.0 declares it
+        NotSolved = 0
+        Optimal = 1
+        Infeasible = -1
+        TimeLimit = -4
+
+    assert solver.status_name(LpSolveStatus.Optimal) == "Optimal"
+    assert solver.status_name(LpSolveStatus.NotSolved) == "Not Solved"
+    assert solver.status_name(LpSolveStatus.Infeasible) == "Infeasible"
+    assert solver.status_name(LpSolveStatus.TimeLimit) == "Time Limit"
+
+
+def test_a_screaming_enum_spells_it_the_same_way():
+    """Belt and braces: if the names are ever shouted, the words still match."""
+    import enum
+
+    class Shouted(enum.Enum):
         OPTIMAL = 1
         NOT_SOLVED = 0
 
-    assert solver.status_name(LpStatus.OPTIMAL) == "Optimal"
-    assert solver.status_name(LpStatus.NOT_SOLVED) == "Not Solved"
+    assert solver.status_name(Shouted.OPTIMAL) == "Optimal"
+    assert solver.status_name(Shouted.NOT_SOLVED) == "Not Solved"
 
 
 def test_an_unknown_status_is_shown_rather_than_swallowed():
@@ -133,15 +165,18 @@ def test_an_unknown_status_is_shown_rather_than_swallowed():
 
 
 def test_a_real_solve_survives_pulp_4(monkeypatch):
-    """The two names 4.0 actually removed, removed — and a model solved anyway.
+    """Everything 4.0 removed, removed — and a model solved anyway.
 
-    This is the test that would have caught the break. Both CI failures were a
-    top-level `pulp` attribute vanishing: first `LpVariable`'s `cat`, then
-    `LpStatus`. Neither is reachable from a normal run on PuLP 3, so nothing
-    here noticed until the runner installed the new major.
+    This is the test that would have caught the break. All three CI failures
+    were the same shape: a name that only exists on PuLP 3 and that no normal
+    run on PuLP 3 can miss. `cat=` on the constructor, then `pulp.LpStatus`,
+    then `LpProblem.status` — each one found by a runner on the new major
+    rather than by anything here.
     """
     monkeypatch.delattr(pulp, "LpStatus", raising=False)
     monkeypatch.delattr(pulp, "PULP_CBC_CMD", raising=False)
+    monkeypatch.delattr(type(pulp.LpProblem("x", pulp.LpMaximize)), "status",
+                        raising=False)
     solver._chosen = None
 
     m = pulp.LpProblem("pulp4", pulp.LpMaximize)

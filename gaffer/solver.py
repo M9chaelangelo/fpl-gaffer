@@ -22,6 +22,7 @@ the word "Optimal". A status that arrives as `1`, or as an enum, silently
 fails that comparison and a perfectly good rebuild is reported as one the
 solver could not confirm. So the status becomes a word here, once.
 """
+import re
 import warnings
 
 import pulp
@@ -30,9 +31,9 @@ import pulp
 # bundled binary that does not.
 BACKENDS = ("COIN_CMD", "PULP_CBC_CMD")
 
-# PuLP 3 exposes this mapping as `pulp.LpStatus`; 4.0 does not. Five entries
-# that have not moved in a decade, kept here so a solver that gives up says
-# "Infeasible" to the person reading the error rather than "-1".
+# PuLP 3 hands back a bare integer and exposes this mapping as `pulp.LpStatus`;
+# 4.0 hands back an enum and drops the mapping. Kept here so a solver that
+# gives up says "Infeasible" to the person reading the error, not "-1".
 STATUS = {0: "Not Solved", 1: "Optimal", -1: "Infeasible",
           -2: "Unbounded", -3: "Undefined"}
 
@@ -72,14 +73,23 @@ def backend():
 def status_name(status):
     """The solver's verdict as a word, whether PuLP hands back an int or an
     enum. Both shapes have to produce the same spelling, because callers
-    compare it to one."""
+    compare it to one — and PuLP 4 spells it `NotSolved` where PuLP 3's table
+    said "Not Solved"."""
     name = getattr(status, "name", None)
     if isinstance(name, str):
-        return name.replace("_", " ").title()      # OPTIMAL -> Optimal
+        spaced = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", name.replace("_", " "))
+        return spaced.title()               # NotSolved / NOT_SOLVED -> Not Solved
     return STATUS.get(status, str(status))
 
 
 def solve(model, time_limit):
-    """Solve `model` quietly under a time limit; return the status name."""
-    model.solve(backend()(msg=0, timeLimit=time_limit))
-    return status_name(model.status)
+    """Solve `model` quietly under a time limit; return the status name.
+
+    The verdict comes off the return value, not off the model. PuLP 3 returns
+    the status integer and also leaves it on `model.status`; PuLP 4 returns a
+    stats object and removed the attribute. The return value is the one thing
+    both versions give you.
+    """
+    result = model.solve(backend()(msg=0, timeLimit=time_limit))
+    status = getattr(result, "status", result)
+    return status_name(status)
