@@ -38,7 +38,7 @@ of a five-week plan.
 """
 import pulp
 
-from . import planner
+from . import planner, solver
 from .optimise import rivalry_weight
 
 SQUAD = {"GKP": 2, "DEF": 5, "MID": 5, "FWD": 3}
@@ -190,9 +190,9 @@ def draft(proj, gws, budget, cfg, pack_own=None, keep=(), ban=(),
         P.setdefault(pid, proj[pid])
 
     m = pulp.LpProblem("wildcard", pulp.LpMaximize)
-    x = {i: pulp.LpVariable(f"x{i}", cat="Binary") for i in P}
-    y = {(i, g): pulp.LpVariable(f"y{i}_{g}", cat="Binary") for i in P for g in gws}
-    c = {(i, g): pulp.LpVariable(f"c{i}_{g}", cat="Binary") for i in P for g in gws}
+    x = {i: m.add_variable(f"x{i}", cat="Binary") for i in P}
+    y = {(i, g): m.add_variable(f"y{i}_{g}", cat="Binary") for i in P for g in gws}
+    c = {(i, g): m.add_variable(f"c{i}_{g}", cat="Binary") for i in P for g in gws}
 
     obj = []
     for gi, g in enumerate(gws):
@@ -234,9 +234,7 @@ def draft(proj, gws, budget, cfg, pack_own=None, keep=(), ban=(),
             m += y[(i, g)] <= x[i]
             m += c[(i, g)] <= y[(i, g)]
 
-    m.solve(pulp.PULP_CBC_CMD(msg=0,
-                              timeLimit=cfg.get("wildcard_time_limit", 180)))
-    status = pulp.LpStatus[m.status]
+    status = solver.solve(m, cfg.get("wildcard_time_limit", 180))
     squad = [i for i in P if (x[i].value() or 0) > 0.5]
     if len(squad) != 15:
         # Almost always the budget: a squad that cannot be bought is not a
