@@ -1,298 +1,498 @@
 /* ===========================================================================
-   Gaffer — interactive app.
-   Palette is the validated data-viz reference instance. Both modes are
-   selected, not flipped: the dark column is the same three hues re-stepped for
-   the dark surface, and both were run through the six checks.
-   Light-mode aqua sits below 3:1 on the surface, so every bar carries a
-   visible label — that is the relief rule, not a decoration.
+   Gaffer — the instrument panel.
+
+   Dark-first and dark-only. This is a tool you open on a phone at a deadline,
+   and every surface it competes with — the FPL app, the projection sites — is
+   dark. A light mode would be the only bright thing on the screen.
+
+   Two motifs do most of the work. Bracket corners mark anything selected or
+   selectable, so "this is a thing you can act on" never depends on colour
+   alone. And every number that matters is large, tabular and unadorned: the
+   page is read at arm's length in the ninety seconds before a deadline.
    =========================================================================== */
 
 :root {
-  color-scheme: light;
-  --surface-0: #f4f4f2;
-  --surface-1: #fcfcfb;
-  --surface-2: #ececea;
-  --line:      #d9d9d5;
-  --ink:       #0b0b0b;
-  --ink-2:     #52514e;
-  --ink-3:     #77766f;
-
-  --series-1: #2a78d6;
-  --series-2: #eb6834;
-  --series-3: #1baf7a;
-
-  --good:     #1baf7a;
-  --warn:     #eda100;
-  --bad:      #e34948;
-
-  --mono: ui-monospace, "SF Mono", Menlo, monospace;
-  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --surface-0: #121211;
-    --surface-1: #1a1a19;
-    --surface-2: #232321;
-    --line:      #33332f;
-    --ink:       #ffffff;
-    --ink-2:     #c3c2b7;
-    --ink-3:     #8f8e85;
-    --series-1: #3987e5;
-    --series-2: #d95926;
-    --series-3: #199e70;
-    --good:     #199e70;
-    --warn:     #c98500;
-    --bad:      #e66767;
-  }
-}
-
-:root[data-theme="dark"] {
   color-scheme: dark;
-  --surface-0: #121211;
-  --surface-1: #1a1a19;
-  --surface-2: #232321;
-  --line:      #33332f;
-  --ink:       #ffffff;
-  --ink-2:     #c3c2b7;
-  --ink-3:     #8f8e85;
-  --series-1: #3987e5;
-  --series-2: #d95926;
-  --series-3: #199e70;
-  --good:     #199e70;
-  --warn:     #c98500;
-  --bad:      #e66767;
+
+  --bg:        #080b11;
+  --surface-0: #0c111a;
+  --surface-1: #111825;
+  --surface-2: #17202e;
+  --line:      #1e2836;
+  --line-soft: #161e2a;
+
+  --ink:   #e9eef6;
+  --ink-2: #93a1b4;
+  --ink-3: #5d6b7d;
+
+  /* Orange is the interface: selected, primary, "you are here". It is never
+     used for data, so a chart can never be confused with a control. */
+  --accent:     #f2653a;
+  --accent-dim: rgba(242, 101, 58, 0.13);
+  --accent-ink: #ff8258;
+
+  /* Data colours. Validated against the dark surface; each carries a label
+     because hue alone is not a signal. */
+  --blue:   #3d8bd4;
+  --blue-2: #1f6fbf;
+  --teal:   #2dc9b4;
+  --green:  #3ec46f;
+  --amber:  #d9a13a;
+  --red:    #e2584f;
+  --purple: #8b6cf0;
+
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+
+  --nav-h: 58px;
 }
 
 * { box-sizing: border-box; }
 
+html { background: var(--bg); }
+
 body {
   margin: 0;
-  background: var(--surface-0);
+  background: var(--bg);
   color: var(--ink);
   font-family: var(--sans);
   font-size: 15px;
   line-height: 1.45;
   -webkit-text-size-adjust: 100%;
-  padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 14px);
 }
 
-.wrap { max-width: 900px; margin: 0 auto; padding: 0 14px; }
+/* The dot grid. It reads as a canvas rather than a document — which is what
+   the Overview actually is. Fixed so it does not scroll away. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(var(--line-soft) 1px, transparent 1px);
+  background-size: 22px 22px;
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 0;
+}
 
-/* --- chrome ------------------------------------------------------------- */
+.wrap { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 0 13px; }
 
-header.top {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: var(--surface-1);
+/* --- header ---------------------------------------------------------------- */
+
+.top {
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(var(--bg), rgba(8, 11, 17, 0.86));
   border-bottom: 1px solid var(--line);
-  padding: calc(10px + env(safe-area-inset-top)) 14px 10px;
+  padding: 10px 0 9px;
+  backdrop-filter: saturate(1.2) blur(8px);
 }
+.brandrow { display: flex; align-items: baseline; gap: 9px; }
+.brand { font-weight: 750; letter-spacing: -0.01em; font-size: 1.02rem; }
+.sub { color: var(--ink-3); font-size: 0.72rem; font-family: var(--mono); }
 
-.brand { font-weight: 700; letter-spacing: -0.01em; }
-.sub { color: var(--ink-2); font-size: 0.78rem; margin-top: 2px; }
-
-nav.tabs {
-  display: flex;
-  gap: 2px;
-  margin-top: 10px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-nav.tabs::-webkit-scrollbar { display: none; }
-
-.tab {
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
+/* Status chips — the Swing / Health / Robustness row. A dot carries the
+   verdict, the label names it, the value states it. Three redundant signals
+   because this is the row you glance at. */
+.chips-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.76rem;
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
   color: var(--ink-2);
-  font: inherit;
-  font-size: 0.86rem;
-  padding: 6px 12px;
+  background: transparent;
   cursor: pointer;
-  white-space: nowrap;
 }
-.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--series-1); font-weight: 650; }
+.chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); flex: 0 0 auto; }
+.chip b { color: var(--ink); font-weight: 650; }
+.chip[aria-pressed="true"] { background: var(--surface-2); border-color: var(--line); color: var(--ink); }
+.chip.good .dot { background: var(--green); }
+.chip.warn .dot { background: var(--amber); }
+.chip.bad  .dot { background: var(--red); }
 
-h2 { font-size: 1rem; margin: 20px 0 8px; }
-h3 { font-size: 0.86rem; margin: 14px 0 6px; }
-
-.muted { color: var(--ink-2); font-size: 0.82rem; }
-.mono { font-family: var(--mono); }
+/* --- cards ----------------------------------------------------------------- */
 
 .card {
-  background: var(--surface-1);
+  position: relative;
+  background: var(--surface-0);
   border: 1px solid var(--line);
   border-radius: 10px;
-  padding: 12px;
-  margin: 10px 0;
+  padding: 13px 14px;
+  margin: 11px 0;
 }
+.card.flat { background: transparent; border-color: var(--line-soft); }
 
-.headline { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
-
-/* --- pitch -------------------------------------------------------------- */
-
-.pitch {
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--series-3) 14%, var(--surface-1)), var(--surface-1));
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 14px 6px;
+/* Bracket corners. Drawn as two L-shaped pseudo-elements rather than a full
+   border so the card reads as a target rather than a box — and so "selected"
+   is a shape change, not just a colour change. */
+.bracket { position: relative; }
+.bracket::before, .bracket::after {
+  content: "";
+  position: absolute;
+  width: 13px; height: 13px;
+  border: 1.5px solid var(--accent);
+  pointer-events: none;
 }
+.bracket::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; border-radius: 3px 0 0 0; }
+.bracket::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; border-radius: 0 0 3px 0; }
 
-.row-pos { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.sec-head {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 4px;
+}
+.sec-head h2, .sec-head h3 {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.sec-head .spacer { flex: 1; }
+.sec-head .verdictval { font-size: 0.8rem; font-weight: 650; }
+.sec-note { color: var(--ink-3); font-size: 0.79rem; margin: 2px 0 10px; }
 
-.pl {
-  width: 84px;
+.label {
+  font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.big { font-family: var(--mono); font-weight: 700; letter-spacing: -0.02em; }
+.big-xl { font-size: 2.1rem; }
+.big-l  { font-size: 1.5rem; }
+.big-m  { font-size: 1.1rem; }
+.accent { color: var(--accent); }
+.muted  { color: var(--ink-2); }
+.dim    { color: var(--ink-3); }
+.good   { color: var(--green); }
+.warn   { color: var(--amber); }
+.bad    { color: var(--red); }
+.note   { color: var(--ink-3); font-size: 0.76rem; line-height: 1.45; margin: 9px 0 0; }
+.err    { color: var(--red); }
+.hidden { display: none !important; }
+
+/* --- segmented controls ---------------------------------------------------- */
+
+.seg {
+  display: flex;
   background: var(--surface-1);
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 6px 4px;
-  text-align: center;
+  padding: 3px;
+  gap: 3px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.seg button {
+  flex: 1 0 auto;
+  font: 650 0.72rem/1 var(--sans);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 8px 9px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.seg button[aria-pressed="true"] { background: var(--accent-dim); color: var(--accent-ink); }
+.seg.plain button[aria-pressed="true"] { background: var(--surface-2); color: var(--ink); }
+
+/* --- buttons --------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  font: 650 0.78rem/1 var(--sans);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface-1);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.btn:hover, .btn:focus-visible { border-color: var(--accent); color: var(--ink); outline: none; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #12060270; color: #190701; }
+.btn.ghost-accent { border-color: var(--accent); color: var(--accent-ink); background: transparent; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* --- the pitch ------------------------------------------------------------- */
+
+.pitch {
+  background:
+    radial-gradient(120% 78% at 50% 0%, rgba(45, 201, 180, 0.07), transparent 62%),
+    var(--surface-0);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 7px 8px;
+  margin: 11px 0;
+}
+.row-pos { display: flex; justify-content: center; gap: 4px; flex-wrap: wrap; margin-bottom: 11px; }
+.pl {
+  width: 68px;
+  border: 0; background: transparent; padding: 0;
   cursor: pointer;
   position: relative;
-}
-.pl:hover, .pl:focus-visible { border-color: var(--series-1); outline: none; }
-.pl-name { font-size: 0.74rem; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pl-opp  { font-size: 0.62rem; color: var(--ink-3); font-family: var(--mono); }
-.pl-xp   { font-size: 0.92rem; font-weight: 700; font-family: var(--mono); margin-top: 2px; }
-.pl-own  { font-size: 0.6rem; color: var(--ink-3); font-family: var(--mono); }
-
-.badge {
-  position: absolute; top: -5px; right: -5px;
-  width: 17px; height: 17px; border-radius: 50%;
-  font-size: 0.58rem; font-weight: 700; font-family: var(--mono);
-  display: flex; align-items: center; justify-content: center;
-  background: var(--series-1); color: #fff;
-}
-.badge-c { background: var(--series-1); }
-.badge-f { background: var(--bad); }
-
-.benchbar { margin-top: 6px; padding-top: 10px; border-top: 1px dashed var(--line); }
-.label { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
-
-/* --- filters ------------------------------------------------------------ */
-
-.filters {
-  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-  margin: 10px 0;
-}
-.filters select, .filters input {
-  background: var(--surface-1);
-  border: 1px solid var(--line);
+  text-align: center;
   color: var(--ink);
-  border-radius: 6px;
-  padding: 5px 8px;
-  font: inherit;
-  font-size: 0.82rem;
 }
-.filters input[type="search"] { min-width: 140px; flex: 1; }
-.chipbtn {
-  background: var(--surface-1); border: 1px solid var(--line); color: var(--ink-2);
-  border-radius: 999px; padding: 4px 11px; font: inherit; font-size: 0.78rem; cursor: pointer;
+/* The shirt. A flat polygon rather than a photo — it has to render at 74px on
+   a phone and carry a club colour, and a crest at that size is a smudge. */
+.kit {
+  width: 42px; height: 40px; margin: 0 auto 3px;
+  clip-path: polygon(22% 0, 36% 8%, 64% 8%, 78% 0, 100% 16%, 86% 33%, 86% 100%, 14% 100%, 14% 33%, 0 16%);
+  background: var(--surface-2);
+  position: relative;
 }
-.chipbtn[aria-pressed="true"] { background: var(--series-1); border-color: var(--series-1); color: #fff; font-weight: 650; }
-
-/* --- table -------------------------------------------------------------- */
-
-.tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-th, td { padding: 6px 8px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
-th:first-child, td:first-child { text-align: left; position: sticky; left: 0; background: var(--surface-0); }
-thead th {
-  font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--ink-3); cursor: pointer; user-select: none;
-  position: sticky; top: 0; background: var(--surface-0); z-index: 2;
+.pl-xp {
+  font-family: var(--mono); font-size: 1.02rem; font-weight: 700;
+  margin-top: -14px; position: relative; z-index: 2;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
 }
-thead th:first-child { z-index: 3; }
-tbody tr:hover td, tbody tr:hover th { background: var(--surface-2); }
-tbody tr.mine td:first-child { border-left: 3px solid var(--series-1); }
-.pill { font-family: var(--mono); font-size: 0.6rem; padding: 1px 5px; border-radius: 4px; background: var(--surface-2); color: var(--ink-2); }
+.pl-name {
+  font-size: 0.64rem; font-weight: 650;
+  background: var(--surface-2); border: 1px solid var(--line);
+  border-radius: 4px; padding: 2px 3px; margin-top: 3px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.pl-opp { font-size: 0.58rem; color: var(--ink-3); font-family: var(--mono); margin-top: 2px; }
+.pl .badge {
+  position: absolute; top: -2px; right: 10px;
+  width: 16px; height: 16px; border-radius: 50%;
+  font: 700 0.58rem/16px var(--mono); color: #fff;
+}
+.badge-c { background: var(--accent); }
+.badge-v { background: var(--blue-2); }
+.badge-f { background: var(--red); }
+.benchband {
+  background: var(--surface-1);
+  border-top: 1px dashed var(--line);
+  border-radius: 0 0 12px 12px;
+  margin: 0 -7px -8px; padding: 9px 7px 3px;
+}
+.benchband .label { display: block; text-align: center; margin-bottom: 7px; }
 
-/* --- charts ------------------------------------------------------------- */
+/* --- tables ---------------------------------------------------------------- */
 
-.chart { width: 100%; display: block; }
+.tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -14px; padding: 0 14px; }
+.tablewrap.tall { max-height: 64vh; overflow-y: auto; }
+table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.79rem; }
+th, td { padding: 7px 8px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line-soft); }
+th {
+  position: sticky; top: 0; z-index: 2;
+  background: var(--surface-1);
+  color: var(--ink-3); font-weight: 650;
+  font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: pointer;
+}
+th:first-child, td:first-child {
+  text-align: left; position: sticky; left: 0;
+  background: var(--surface-0);
+}
+th:first-child { z-index: 3; background: var(--surface-1); }
+tbody tr:hover td { background: var(--surface-1); }
+tbody tr { cursor: pointer; }
+td.num { font-family: var(--mono); }
+
+/* Heatmap cells. The value is always printed — the fill is a second channel,
+   never the only one, because these colours sit close together at the middle
+   of the scale. */
+td.heat { font-family: var(--mono); font-weight: 650; color: var(--ink); border-radius: 3px; }
+
+.pill {
+  font-family: var(--mono); font-size: 0.6rem; padding: 1px 5px;
+  border-radius: 4px; background: var(--surface-2); color: var(--ink-2);
+}
+
+/* --- filters --------------------------------------------------------------- */
+
+.filters { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+.filters select, .filters input {
+  background: var(--surface-1); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 8px;
+  padding: 9px 10px; font: 500 0.8rem var(--sans);
+}
+.filters input[type="search"] { flex: 1; min-width: 120px; }
+
+/* --- charts ---------------------------------------------------------------- */
+
+.chart { width: 100%; display: block; overflow: visible; }
 .chart text { font-family: var(--sans); fill: var(--ink-2); }
 .chart .val { font-family: var(--mono); font-weight: 650; fill: var(--ink); }
 .chart .gridline { stroke: var(--line); stroke-width: 1; }
 .chart .axis { stroke: var(--line); stroke-width: 1; }
 
-.legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0 2px; font-size: 0.78rem; }
+.legend { display: flex; gap: 13px; flex-wrap: wrap; margin: 7px 0 2px; font-size: 0.74rem; }
 .legend span { display: inline-flex; align-items: center; gap: 5px; color: var(--ink-2); }
-.swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; flex: 0 0 auto; }
 
-/* --- compare ------------------------------------------------------------ */
+/* --- stat tiles ------------------------------------------------------------ */
 
-.pickrow { display: flex; gap: 8px; flex-wrap: wrap; }
-.pickrow select { flex: 1; min-width: 130px; }
-
-.verdict { font-size: 0.86rem; margin: 8px 0 0; color: var(--ink-2); }
-.verdict strong { color: var(--ink); }
-
-/* --- plan --------------------------------------------------------------- */
-
-.gwrow {
-  display: flex; align-items: baseline; gap: 10px;
-  padding: 8px 0; border-bottom: 1px solid var(--line);
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; margin: 10px 0 2px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--line);
+  border-radius: 9px; padding: 11px 9px; text-align: center;
 }
-.gwrow:last-child { border-bottom: none; }
-.gwno { font-family: var(--mono); font-weight: 700; font-size: 0.78rem; min-width: 42px; }
-.gwmove { flex: 1; font-size: 0.82rem; }
-.gwmove .o { color: var(--ink-3); text-decoration: line-through; }
-.gwep { font-family: var(--mono); font-weight: 650; }
+.tile.key { border-color: var(--blue-2); background: rgba(31, 111, 191, 0.09); }
+.tile .label { display: block; margin-bottom: 5px; letter-spacing: 0.1em; }
+.tile .v { font-family: var(--mono); font-size: 1.22rem; font-weight: 700; }
+.tile.key .v { color: var(--blue); }
 
-.tag {
-  font-size: 0.66rem; font-family: var(--mono); padding: 1px 6px; border-radius: 4px;
-  background: var(--series-2); color: #fff; font-weight: 650;
+/* --- the gameweek strip (Overview) ----------------------------------------- */
+
+.strip { display: flex; gap: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 6px 2px 12px; }
+.node {
+  flex: 0 0 auto; width: 132px;
+  background: var(--surface-0); border: 1px solid var(--line);
+  border-radius: 9px; padding: 10px 11px;
+  cursor: pointer; position: relative; color: inherit; text-align: left;
+}
+.node[aria-pressed="true"] { background: rgba(242, 101, 58, 0.06); }
+.node .gwno { font-family: var(--mono); font-size: 0.66rem; color: var(--ink-3); letter-spacing: 0.1em; }
+.node .pts { font-family: var(--mono); font-size: 1.32rem; font-weight: 700; }
+.node .pts small { font-size: 0.6rem; color: var(--ink-3); font-weight: 500; margin-left: 3px; }
+.node .foot { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.64rem; color: var(--ink-3); margin-top: 7px; }
+/* The range bar: downside, the mean, upside. A single tick on a track says
+   more about a week than a second decimal place on the mean. */
+.range { height: 5px; background: var(--surface-2); border-radius: 3px; position: relative; margin-top: 8px; }
+.range i { position: absolute; top: -3px; width: 2px; height: 11px; background: var(--accent); border-radius: 1px; }
+.rangenums { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.6rem; color: var(--ink-3); margin-top: 3px; }
+
+/* --- sliders (Optimise) ---------------------------------------------------- */
+
+.slider { margin: 15px 0 4px; }
+.slider .head { display: flex; align-items: baseline; gap: 8px; }
+.slider .head .name { font-size: 0.86rem; font-weight: 600; }
+.slider .head .spacer { flex: 1; }
+.slider .head .v { font-family: var(--mono); font-weight: 700; color: var(--accent); }
+.slider input[type="range"] {
+  width: 100%; margin: 9px 0 5px; accent-color: var(--accent);
+  background: transparent;
+}
+.slider .ends { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--ink-3); }
+.slider .ends .on { color: var(--ink); background: var(--accent-dim); border-radius: 5px; padding: 2px 7px; }
+
+/* --- preset grid ----------------------------------------------------------- */
+
+.presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 9px; }
+.preset {
+  position: relative;
+  background: var(--surface-0); border: 1px solid var(--line);
+  border-radius: 9px; padding: 15px 6px 12px;
+  color: var(--ink-2); cursor: pointer;
+  font: 650 0.72rem/1.2 var(--sans); letter-spacing: 0.06em; text-transform: uppercase;
+  text-align: center;
+}
+.preset[aria-pressed="true"] { background: rgba(242, 101, 58, 0.09); color: var(--accent-ink); }
+.preset svg { display: block; margin: 0 auto 7px; }
+
+/* --- matrix ---------------------------------------------------------------- */
+
+.matrix { border-collapse: separate; border-spacing: 4px; width: 100%; font-size: 0.8rem; }
+.matrix td, .matrix th { border: 0; padding: 0; text-align: center; }
+.matrix th { position: static; background: transparent; color: var(--ink-2); font-size: 0.7rem; letter-spacing: 0.06em; }
+.matrix .cell {
+  border-radius: 7px; padding: 13px 4px;
+  font-family: var(--mono); font-weight: 700; font-size: 0.95rem;
+  background: var(--surface-1); color: var(--ink);
+}
+.matrix .cell.fav { background: rgba(31, 111, 191, 0.42); }
+.matrix .cell.unfav { background: rgba(140, 90, 30, 0.42); }
+.matrix .cell.tot { background: rgba(226, 88, 79, 0.10); }
+.matrix .cell.grand { background: var(--accent); color: #190701; }
+
+/* --- exposure bars --------------------------------------------------------- */
+
+.exprow { display: grid; grid-template-columns: 38px 1fr auto; gap: 9px; align-items: center; margin: 5px 0; }
+.exprow .t { font-family: var(--mono); font-size: 0.74rem; color: var(--ink-2); }
+.exptrack { height: 17px; border-radius: 4px; background: var(--surface-1); overflow: hidden; position: relative; }
+.exptrack i { display: block; height: 100%; border-radius: 4px; }
+.exprow .n { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-3); text-align: right; }
+
+/* --- list rows ------------------------------------------------------------- */
+
+.listrow {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 0; border-bottom: 1px solid var(--line-soft);
+}
+.listrow:last-child { border-bottom: 0; }
+.listrow .grow { flex: 1; min-width: 0; }
+.listrow .nm { font-size: 0.86rem; font-weight: 600; }
+.listrow .sub { font-size: 0.72rem; color: var(--ink-3); font-family: var(--mono); }
+.swap {
+  font: 650 0.72rem var(--mono);
+  background: rgba(62, 196, 111, 0.12); color: var(--green);
+  border: 1px solid rgba(62, 196, 111, 0.28);
+  border-radius: 6px; padding: 4px 8px; white-space: nowrap;
 }
 
-.note { font-size: 0.76rem; color: var(--ink-3); line-height: 1.4; margin: 8px 0 0; }
-.err { color: var(--bad); }
-.hidden { display: none !important; }
+/* --- bottom navigation ----------------------------------------------------- */
 
-/* --- wildcard: the rebuild ------------------------------------------------
-   A drafted squad is read three ways: the pitch for shape, the chips for what
-   changed, the week strip for the fixtures you are actually buying. The strip
-   scrolls rather than wraps — eight gameweeks wrapped onto three lines stops
-   looking like a timeline. */
-.weekpick { padding-top: 10px; padding-bottom: 8px; }
-.weekpick .row-pos {
-  justify-content: flex-start;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  margin-top: 6px;
-  margin-bottom: 0;
-  padding-bottom: 2px;
+.nav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  background: rgba(10, 14, 21, 0.97);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+  backdrop-filter: blur(10px);
 }
-.wk {
-  flex: 0 0 auto;
-  font: 650 0.72rem/1 var(--mono);
-  padding: 7px 9px;
-  border-radius: 7px;
-  border: 1px solid var(--line);
-  background: var(--surface-2);
-  color: var(--ink-2);
-  cursor: pointer;
+.nav button {
+  background: transparent; border: 0; cursor: pointer;
+  color: var(--ink-3);
+  padding: 8px 2px 7px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  font: 500 0.64rem/1 var(--sans);
+  position: relative;
 }
-.wk:hover, .wk:focus-visible { border-color: var(--series-1); outline: none; }
-.wk.on {
-  background: var(--series-1);
-  border-color: var(--series-1);
-  color: #fff;
+.nav button svg { width: 19px; height: 19px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+.nav button[aria-selected="true"] { color: var(--accent); }
+.nav button[aria-selected="true"]::after {
+  content: ""; position: absolute; bottom: 0; left: 26%; right: 26%;
+  height: 2px; background: var(--accent); border-radius: 2px 2px 0 0;
 }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
-.chips > span {
-  font: 600 0.72rem/1.25 var(--mono);
-  padding: 4px 7px;
-  border-radius: 6px;
-  border: 1px solid var(--line);
-  background: var(--surface-2);
+
+/* The More sheet, which slides over the page rather than navigating away —
+   the menu is a detour, not a destination. */
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: var(--nav-h); z-index: 9;
+  background: var(--surface-0); border-top: 1px solid var(--line);
+  padding: 6px 0 calc(env(safe-area-inset-bottom) + 6px);
 }
-/* Colour carries the direction, but the card's own heading already says
-   "Sold" or "Bought" — so the hue is reinforcement, never the only signal. */
-.chip-rise { color: var(--good); border-color: color-mix(in srgb, var(--good) 40%, var(--line)); }
-.chip-fall { color: var(--bad);  border-color: color-mix(in srgb, var(--bad) 40%, var(--line)); }
-.chip-mute { color: var(--ink-3); }
+.sheet button {
+  display: flex; align-items: center; gap: 14px; width: 100%;
+  background: transparent; border: 0; border-bottom: 1px solid var(--line-soft);
+  color: var(--ink); text-align: left; cursor: pointer;
+  padding: 15px 18px;
+  font: 600 0.82rem/1 var(--sans); letter-spacing: 0.08em; text-transform: uppercase;
+}
+.sheet button:last-child { border-bottom: 0; }
+.sheet button svg { width: 19px; height: 19px; stroke: var(--ink-3); fill: none; stroke-width: 1.6; }
+
+@media (min-width: 640px) {
+  .pl { width: 86px; }
+  body { font-size: 15.5px; }
+}
+
+/* --- the fixture ticker ---------------------------------------------------
+   A column per gameweek, a split pill per match. The club codes carry their
+   own colours because that is the only way a twenty-match column is scannable
+   — and the ink on each half is chosen by luminance, not guessed, so Fulham's
+   white and Newcastle's black both stay readable. */
+.ticker { display: flex; gap: 7px; align-items: flex-start; }
+.tickcol { flex: 0 0 auto; min-width: 118px; }
+.tickcol .label { display: block; margin-bottom: 6px; }
+.match {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+  margin-bottom: 4px;
+}
+.mhalf {
+  font: 700 0.66rem/1 var(--mono);
+  padding: 6px 4px; text-align: center; border-radius: 3px;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.node .moves {
+  font-size: 0.68rem; line-height: 1.5; margin-top: 7px;
+  border-top: 1px solid var(--line-soft); padding-top: 6px;
+}

@@ -6,7 +6,7 @@ Solving week by week is what makes people take hits they regret.
 """
 import pulp
 
-from . import timing
+from . import solver, timing
 
 SQUAD = {"GKP": 2, "DEF": 5, "MID": 5, "FWD": 3}
 XI_MIN = {"GKP": 1, "DEF": 3, "MID": 2, "FWD": 1}
@@ -54,25 +54,25 @@ def plan(proj, squad_ids, sell, bank, gws, free_transfers, cfg,
     g0 = gws[0]
 
     m = pulp.LpProblem("gaffer", pulp.LpMaximize)
-    x = {(i, g): pulp.LpVariable(f"x_{i}_{g}", cat="Binary") for i in P for g in gws}
-    y = {(i, g): pulp.LpVariable(f"y_{i}_{g}", cat="Binary") for i in P for g in gws}
-    c = {(i, g): pulp.LpVariable(f"c_{i}_{g}", cat="Binary") for i in P for g in gws}
-    tin = {(i, g): pulp.LpVariable(f"i_{i}_{g}", cat="Binary") for i in P for g in gws}
-    tout = {(i, g): pulp.LpVariable(f"o_{i}_{g}", cat="Binary") for i in P for g in gws}
-    hits = {g: pulp.LpVariable(f"h_{g}", lowBound=0, cat="Integer") for g in gws}
+    x = {(i, g): m.add_variable(f"x_{i}_{g}", cat="Binary") for i in P for g in gws}
+    y = {(i, g): m.add_variable(f"y_{i}_{g}", cat="Binary") for i in P for g in gws}
+    c = {(i, g): m.add_variable(f"c_{i}_{g}", cat="Binary") for i in P for g in gws}
+    tin = {(i, g): m.add_variable(f"i_{i}_{g}", cat="Binary") for i in P for g in gws}
+    tout = {(i, g): m.add_variable(f"o_{i}_{g}", cat="Binary") for i in P for g in gws}
+    hits = {g: m.add_variable(f"h_{g}", lowBound=0, cat="Integer") for g in gws}
     # Free transfers: one a week, unused ones stack, hard ceiling of five.
-    ft = {g: pulp.LpVariable(f"ft_{g}", lowBound=0, upBound=5) for g in gws}
-    used = {g: pulp.LpVariable(f"u_{g}", lowBound=0, cat="Integer") for g in gws}
-    wc = {g: pulp.LpVariable(f"wc_{g}", cat="Binary") for g in gws}
-    tc = {g: pulp.LpVariable(f"tc_{g}", cat="Binary") for g in gws}
-    bb = {g: pulp.LpVariable(f"bb_{g}", cat="Binary") for g in gws}
+    ft = {g: m.add_variable(f"ft_{g}", lowBound=0, upBound=5) for g in gws}
+    used = {g: m.add_variable(f"u_{g}", lowBound=0, cat="Integer") for g in gws}
+    wc = {g: m.add_variable(f"wc_{g}", cat="Binary") for g in gws}
+    tc = {g: m.add_variable(f"tc_{g}", cat="Binary") for g in gws}
+    bb = {g: m.add_variable(f"bb_{g}", cat="Binary") for g in gws}
 
     # Chip effects must attach to the players actually involved. A flat credit
     # makes a chip look free of any squad decision, and the solver then just
     # plays it in the earliest week the decay factor still values.
-    boost = {(i, g): pulp.LpVariable(f"bst_{i}_{g}", cat="Binary")
+    boost = {(i, g): m.add_variable(f"bst_{i}_{g}", cat="Binary")
              for i in P for g in gws}    # on the bench AND bench boost active
-    trip = {(i, g): pulp.LpVariable(f"trp_{i}_{g}", cat="Binary")
+    trip = {(i, g): m.add_variable(f"trp_{i}_{g}", cat="Binary")
             for i in P for g in gws}     # is captain AND triple captain active
 
     obj = []
@@ -196,7 +196,7 @@ def plan(proj, squad_ids, sell, bank, gws, free_transfers, cfg,
     m += pulp.lpSum(wc.values()) + pulp.lpSum(tc.values()) \
          + pulp.lpSum(bb.values()) <= cfg.get("max_chips_in_horizon", 1)
 
-    m.solve(pulp.PULP_CBC_CMD(msg=0, timeLimit=cfg.get("time_limit", 240)))
+    solver.solve(m, cfg.get("time_limit", 240))
 
     out = []
     for g in gws:
@@ -253,9 +253,9 @@ def free_hit_week(proj, gw, budget, pack_own=None, rivalry=0.0):
             if p["exp_min"] >= 55 and p["status"] == "a" and p["own"] >= 0.6]
     P = {p["id"]: p for p in pool}
     m = pulp.LpProblem("freehit", pulp.LpMaximize)
-    x = {i: pulp.LpVariable(f"fx{i}", cat="Binary") for i in P}
-    y = {i: pulp.LpVariable(f"fy{i}", cat="Binary") for i in P}
-    c = {i: pulp.LpVariable(f"fc{i}", cat="Binary") for i in P}
+    x = {i: m.add_variable(f"fx{i}", cat="Binary") for i in P}
+    y = {i: m.add_variable(f"fy{i}", cat="Binary") for i in P}
+    c = {i: m.add_variable(f"fc{i}", cat="Binary") for i in P}
     m += pulp.lpSum(P[i]["ep"][gw] * rivalry_weight(i, pack_own, rivalry)
                     * (y[i] + c[i]) for i in P)
     m += pulp.lpSum(P[i]["price"] * x[i] for i in P) <= budget
@@ -271,7 +271,7 @@ def free_hit_week(proj, gw, budget, pack_own=None, rivalry=0.0):
     for i in P:
         m += y[i] <= x[i]
         m += c[i] <= y[i]
-    m.solve(pulp.PULP_CBC_CMD(msg=0, timeLimit=120))
+    solver.solve(m, 120)
     xi = sorted([P[i] for i in P if y[i].value() > 0.5], key=lambda p: -p["ep"][gw])
     cap = next(P[i] for i in P if c[i].value() > 0.5)
     return {"gw": gw, "xi": xi, "captain": cap,

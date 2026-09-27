@@ -16,7 +16,7 @@ static files and nothing else.
 import json
 import os
 
-from . import explain
+from . import analysis, distribution, explain, leaders
 
 # Fields kept per player. Deliberately explicit: an accidental `**p` here would
 # ship the whole projection dict, and `ep` alone is a dict per gameweek for
@@ -57,7 +57,7 @@ METRICS = [
 
 def build(proj, prof, lg, elite_own, price_fc, gws, squad_ids, weeks,
           deadline, gw, planner=None, hit_verdict=None, clean_sheets=None,
-          wildcard=None, team_form=None):
+          wildcard=None, team_form=None, strengths=None, ticker=None):
     """Assemble the page's dataset."""
     cards = {}
     for pid in proj:
@@ -76,6 +76,10 @@ def build(proj, prof, lg, elite_own, price_fc, gws, squad_ids, weeks,
                             for g in wildcard["gws"]]
         cards[pid] = row
 
+    # The category boards Solio organises its front page around: who to
+    # captain, where the leverage is, who scores, who keeps it out. Computed
+    # here rather than in the browser so the page stays a renderer and the
+    # ranking rules stay testable.
     now = weeks[0] if weeks else None
     squad = []
     if now:
@@ -122,6 +126,44 @@ def build(proj, prof, lg, elite_own, price_fc, gws, squad_ids, weeks,
         # The one number on the page a human can check against what they
         # actually watched on Saturday.
         "team_form": team_form or [],
+        # Attack and defence per club, form-blended and centred on one. The
+        # scatter every fixture argument ends up being about.
+        "strengths": strengths or {},
+        # Every match in the horizon, by gameweek — the ticker. Keys are
+        # strings because JSON has no integer keys and the page would have to
+        # coerce them back anyway.
+        "ticker": {str(g): v for g, v in (ticker or {}).items()},
+        # What the eleven might actually score, not just the mean of it.
+        # Exact convolution over the per-player component distributions.
+        "distribution": (distribution.squad_points(
+            list(cards.values()),
+            [p["id"] for p in now["xi"]],
+            captain_id=now["captain"]["id"],
+            bench_ids=[p["id"] for p in now["bench"]],
+            chip={"Bench Boost": "bb", "Triple Captain": "tc"}.get(now["chip"]))
+            if now else None),
+        # Where the projected points come from, split into the buckets that
+        # actually produce them.
+        "dna": (distribution.points_dna(
+            list(cards.values()),
+            [p["id"] for p in now["xi"]],
+            captain_id=now["captain"]["id"],
+            bench_ids=[p["id"] for p in now["bench"]],
+            chip={"Bench Boost": "bb", "Triple Captain": "tc"}.get(now["chip"]))
+            if now else None),
+        # What is wrong with the eleven: who is being out-scored, how exposed
+        # the bench is, which clubs the week turns on.
+        "diagnosis": (analysis.build(
+            list(cards.values()),
+            [p["id"] for p in now["xi"]],
+            bench_ids=[p["id"] for p in now["bench"]],
+            captain_id=now["captain"]["id"],
+            squad_ids=list(squad_ids), strengths=strengths) if now else None),
+        "boards": leaders.build(
+            list(cards.values()), gw,
+            xi_ids=[p["id"] for p in now["xi"]] if now else None,
+            captain_id=now["captain"]["id"] if now else None,
+            clean_sheets=clean_sheets or []),
         "clean_sheets": clean_sheets or [],
         "planner": planner,
         "league": {
