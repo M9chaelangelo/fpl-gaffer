@@ -12,6 +12,12 @@ on:
   push:
     branches: ["**"]
   pull_request:
+  # A run that never started still has to be restartable. A commit pushed by
+  # the `gaffer` workflow's own token arrives as the bot, and GitHub holds such
+  # a run for manual approval; leave it unapproved and it is closed out as a
+  # failure having executed nothing — a red PR with zero jobs and no way back
+  # except another commit. This is that way back.
+  workflow_dispatch:
 
 jobs:
   pytest:
