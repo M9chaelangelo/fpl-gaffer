@@ -230,6 +230,19 @@ def main():
         except ValueError as e:
             print(f"  !! wildcard draft failed: {e}")
 
+    # The weekly model also has an opinion about the wildcard week, and it is
+    # the weaker one — five weeks, and a pool that starts above the enablers.
+    # Showing both left two squads on the page, each labelled the wildcard.
+    # From the chip week onwards the plan is the drafter's.
+    if wc_draft:
+        adopted = wildcard.adopt(weeks, wc_draft, proj, squad_ids)
+        if adopted is not weeks:
+            moved = sum(1 for a, b in zip(adopted, weeks)
+                        if [p["id"] for p in a["xi"]] != [p["id"] for p in b["xi"]])
+            print(f"  the plan now buys the drafted fifteen "
+                  f"({moved} of {len(weeks)} weeks rewritten)")
+            weeks = adopted
+
     atk, dfn = projections.team_strength(
         boot, fixtures=fx, form_weight=cfg.get("team_form_weight", 0.0),
         half_life=cfg.get("team_form_half_life", 2.5))

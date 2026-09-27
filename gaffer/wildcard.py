@@ -348,3 +348,69 @@ def summarise(drafted, proj, squad_ids):
         "sell": sorted(now - new, key=lambda i: -proj[i]["price"]),
         "buy": sorted(new - now, key=lambda i: -proj[i]["price"]),
     }
+
+
+def adopt(weeks, draft, proj, squad_ids):
+    """Make the weekly plan show the rebuild it says it is playing.
+
+    Two solvers answer "what do I buy on my wildcard". The weekly model plans
+    transfers five weeks out from the top hundred and thirty by projected
+    points; the drafter spends the whole budget over eight weeks from a pool
+    that reaches the four-pound enablers. They do not agree — on GW6 they
+    differed by four of fifteen — and the page showed both, each labelled the
+    wildcard, without saying which one to buy.
+
+    The drafter is the one built for the question, so from the wildcard week
+    onwards the plan becomes its squad. Transfers stop there too: the drafter
+    scored those weeks holding the fifteen fixed, so a plan that kept making
+    moves would be reporting a number nobody computed.
+
+    Returns a new list. `weeks` is not modified.
+    """
+    if not draft or not weeks:
+        return weeks
+    start = next((i for i, w in enumerate(weeks) if w["chip"] == "Wildcard"),
+                 None)
+    if start is None:
+        return weeks
+    # Splicing a GW8 rebuild into a GW6 wildcard would be worse than showing
+    # two answers, because it would look like one.
+    if draft.get("for_gw") != weeks[start]["gw"]:
+        return weeks
+
+    by_gw = {w["gw"]: w for w in draft["weeks"]}
+    # What you hold going in. The plan may already have made moves before the
+    # chip, so the squad to compare against is the week before it — not the
+    # one you own today.
+    before = (set(squad_ids) if start == 0 else
+              {p["id"] for p in weeks[start - 1]["xi"] + weeks[start - 1]["bench"]})
+
+    out = list(weeks[:start])
+    for w in weeks[start:]:
+        d = by_gw.get(w["gw"])
+        if d is None:
+            # The drafter's horizon is the longer of the two, so this does not
+            # arise — but half a spliced plan is the one outcome worse than
+            # leaving both answers up, so stop rather than mix.
+            return weeks
+        fifteen = list(d["xi"]) + list(d["bench"])
+        first = w["gw"] == weeks[start]["gw"]
+        ins = [proj[i] for i in fifteen if i not in before] if first else []
+        outs = ([proj[i] for i in sorted(before - set(fifteen))]
+                if first else [])
+        out.append({
+            "gw": w["gw"],
+            "in": [p["name"] for p in ins],
+            "out": [p["name"] for p in outs],
+            "in_players": ins,
+            "out_players": outs,
+            # A wildcard is free, and nothing moves in the weeks it bought.
+            "hits": 0,
+            "chip": w["chip"] or d["chip"],
+            "xi": sorted((proj[i] for i in d["xi"]),
+                         key=lambda p: -p["ep"].get(w["gw"], 0.0)),
+            "bench": [proj[i] for i in d["bench"]],
+            "captain": proj[d["captain"]],
+            "ep": d["ep"],
+        })
+    return out
