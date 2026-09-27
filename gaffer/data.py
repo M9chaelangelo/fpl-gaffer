@@ -95,10 +95,13 @@ def panel(df):
     for col, win in [("threat", 4), ("ict_index", 4), ("influence", 4),
                      ("goals_conceded", 4), ("clean_sheets", 6),
                      ("defensive_contribution", 4), ("tackles", 4),
-                     ("recoveries", 4)]:
+                     ("recoveries", 4), ("bonus", 4)]:
         if col in df.columns:
             df[f"roll_{col}"] = g[col].transform(
                 lambda s: s.shift(1).rolling(win, min_periods=1).mean())
         else:
             df[f"roll_{col}"] = np.nan
+    df["pos_code"] = df["position"].map(
+        {"GK": 1.0, "GKP": 1.0, "DEF": 2.0, "MID": 3.0, "FWD": 4.0}) \
+        if "position" in df.columns else np.nan
     return df.dropna(subset=["next_value"])

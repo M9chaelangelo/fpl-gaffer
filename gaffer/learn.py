@@ -28,8 +28,21 @@ MINUTES_X = ["minutes", "roll_minutes", "starts", "value", "roll_total_points"]
 CEILING_X = ["roll_minutes", "roll_total_points", "roll_expected_goal_involvements",
              "roll_bps", "value", "was_home", "expected_goals_conceded",
              "roll_threat", "roll_ict_index"]
+# Bonus is awarded off BPS, so BPS has to be the spine of this model. The
+# first version regressed the mean and learned price instead: varying BPS per
+# match from 0 to 60 moved its answer by 0.06 points, while varying price moved
+# it by 0.35. It had found that expensive players collect bonus — which the
+# projection already knows, several times over — and missed the mechanism.
+#
+# Two changes. The target is the class, not the mean: bonus is 0, 1, 2 or 3,
+# and almost always 0, so a regressor is rewarded for predicting the base rate
+# and an MAE near 0.15 looks good while saying nothing. Expected bonus comes
+# back as the probability-weighted sum. And the features now include the
+# position and how open the game is, so it no longer has to infer either from
+# the price tag.
 BONUS_X = ["roll_bps", "roll_minutes", "roll_expected_goal_involvements",
-           "roll_influence", "value", "was_home"]
+           "roll_influence", "roll_threat", "value", "was_home",
+           "pos_code", "expected_goals_conceded"]
 CS_X = ["roll_goals_conceded", "expected_goals_conceded", "was_home",
         "roll_clean_sheets", "value"]
 DEFCON_X = ["roll_defensive_contribution", "roll_minutes", "roll_tackles",
@@ -47,6 +60,29 @@ PRICE_X = ["net_transfers", "net_share", "selected", "value",
            "roll_total_points", "transfers_balance"]
 POINTS_X = ["roll_minutes", "roll_total_points", "roll_expected_goal_involvements",
             "roll_bps", "value", "was_home", "expected_goals_conceded"]
+
+
+def expected_bonus(model, X):
+    """Bonus points per match, as a number, from the class probabilities.
+
+    The model answers "how likely is 0, 1, 2 or 3?". A projection needs one
+    number, and the mean of that distribution is it. Defined here rather than
+    at each call site so the scorer and the projection cannot drift apart —
+    which is how the last bonus model came to be measured by a metric nobody
+    could act on.
+    """
+    probs = model.predict_proba(X)
+    return sum(float(k) * probs[:, i] for i, k in enumerate(model.classes_))
+
+
+def _bonus_mae(frame):
+    """The new model's error in the old model's units, so the two are
+    comparable and the baseline means something."""
+    import joblib
+    bundle = joblib.load(f"{MODELS}/bonus.joblib")
+    X = frame[bundle["features"]].astype(float)
+    return mean_absolute_error(frame["next_bonus"],
+                               expected_bonus(bundle["model"], X))
 
 
 def _fit(model, df, xs, y, name, scorer):
@@ -67,6 +103,9 @@ def train(seasons=None):
     print("loading history…")
     df = data.panel(data.history(seasons))
     print(f"{len(df):,} player-gameweeks")
+    # Four is the ceiling FPL awards; anything above it is a data error, not a
+    # class worth learning.
+    df["bonus_class"] = df["next_bonus"].clip(0, 3)
     out = {}
 
     auc, n = _fit(HistGradientBoostingClassifier(max_iter=250), df, MINUTES_X,
@@ -95,10 +134,23 @@ def train(seasons=None):
     out["ceiling"] = {"metric": "AUC", "value": round(auc, 3), "rows": n,
                       "target": "P(10+ points next gameweek)"}
 
-    mae, n = _fit(HistGradientBoostingRegressor(max_iter=200), df, BONUS_X,
-                  "next_bonus", "bonus",
-                  lambda y, m, X: -mean_absolute_error(y, m.predict(X)))
-    out["bonus"] = {"metric": "MAE", "value": round(-mae, 3), "rows": n}
+    auc, n = _fit(HistGradientBoostingClassifier(max_iter=250), df, BONUS_X,
+                  "bonus_class", "bonus",
+                  lambda y, m, X: roc_auc_score(
+                      y, m.predict_proba(X), multi_class="ovr",
+                      average="macro", labels=list(m.classes_)))
+    out["bonus"] = {"metric": "AUC (macro, 0/1/2/3)", "value": round(auc, 3),
+                    "rows": n, "target": "bonus points next gameweek"}
+    # The baseline that matters: predicting the player's own recent bonus rate.
+    # Recorded because the model it replaces scored a flattering MAE against no
+    # baseline at all, and nobody noticed for a season.
+    bb = df.dropna(subset=["roll_bonus", "next_bonus"])
+    if len(bb):
+        out["bonus"]["naive_baseline_mae"] = round(
+            float(mean_absolute_error(bb["next_bonus"], bb["roll_bonus"])), 3)
+        out["bonus"]["model_mae"] = round(float(_bonus_mae(bb)), 3)
+        out["bonus"]["beats_baseline"] = (
+            out["bonus"]["model_mae"] < out["bonus"]["naive_baseline_mae"])
 
     dd = df[df["position"].isin(["DEF", "GK", "GKP"])]
     auc, n = _fit(HistGradientBoostingClassifier(max_iter=200), dd, CS_X,
