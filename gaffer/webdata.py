@@ -25,6 +25,7 @@ CARD_FIELDS = (
     "name", "team", "pos", "price", "ep_next", "ep_horizon", "fixtures",
     "start_prob", "ceiling", "exp_minutes", "xg90", "xa90", "shot_quality",
     "attacking_share", "defcon90", "defcon_prob", "cs_prob", "setpiece",
+    "bonus_exp", "bps90",
     "own_league", "own_pack", "own_elite", "own_overall",
     "price_direction", "net_transfers", "status", "news",
 )
@@ -48,6 +49,8 @@ METRICS = [
     {"key": "defcon_prob", "label": "Hits DefCon", "higher_better": True, "fmt": "pct"},
     {"key": "cs_prob", "label": "Clean sheet", "higher_better": True, "fmt": "pct"},
     {"key": "setpiece", "label": "Set-piece value", "higher_better": True, "fmt": "num"},
+    {"key": "bonus_exp", "label": "Expected bonus", "higher_better": True, "fmt": "num"},
+    {"key": "bps90", "label": "BPS per 90", "higher_better": True, "fmt": "num"},
     {"key": "price", "label": "Price", "higher_better": False, "fmt": "money"},
     {"key": "own_overall", "label": "Owned overall", "higher_better": True, "fmt": "pct"},
     {"key": "own_league", "label": "Owned in your league", "higher_better": True, "fmt": "pct"},

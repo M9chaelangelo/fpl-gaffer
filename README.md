@@ -162,7 +162,7 @@ grouped cross-validation by gameweek so there is no leakage across time.
 | ceiling | scores 10+ next week — the captaincy question | AUC 0.848 |
 | cleansheet | keeps a clean sheet | AUC 0.829 |
 | points | next gameweek's points | MAE 1.003 |
-| bonus | bonus points | MAE 0.148 |
+| bonus | bonus points next week, as 0/1/2/3 | AUC — retrain pending |
 | herd | next week's net transfers as a share of owners | MAE 0.045 |
 | injury_return | minutes in the week back from an absence | MAE 13.0 min |
 | rotation | minutes under fixture congestion | MAE 14.4 min |
@@ -502,12 +502,26 @@ runs them again immediately before the solve, because the code that matters is
 the code on `main` on deadline morning, not the code that passed review a week
 earlier.
 
-### A note on the other eight models
+### A note on the other seven models
 
-`minutes` and `ceiling` are loaded. The remaining eight — `price`, `defcon`,
-`cleansheet`, `bonus`, `herd`, `injury_return`, `rotation`, `points` — are
+`minutes`, `ceiling` and `bonus` are loaded. The remaining seven — `price`,
+`defcon`, `cleansheet`, `herd`, `injury_return`, `rotation`, `points` — are
 trained, scored and committed, and still read by nothing. They are not wired in
 yet, and the README should not imply otherwise.
+
+`bonus` is a cautionary tale worth keeping. Its first version regressed the
+mean and scored MAE 0.148, which looked good and meant nothing: bonus is zero
+for the overwhelming majority of player-weeks, so the base rate scores about
+the same. Swept properly, price moved its answer by 0.35 points and BPS per
+match — the quantity FPL awards bonus on — moved it by 0.06, non-monotonically.
+It had learned that expensive players collect bonus.
+
+It is now a classifier over 0/1/2/3, with the position and how open the game is
+among its features, and expected bonus is the mean of that distribution. The
+projection refuses any bundle without `predict_proba`, so the old model cannot
+come back by accident, and `scores.json` now records the baseline it has to
+beat — predicting the player's own recent bonus rate — because the absence of
+one is how the first version survived a season.
 
 ## What it does not do
 

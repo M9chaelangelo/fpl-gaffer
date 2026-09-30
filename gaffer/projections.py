@@ -113,6 +113,82 @@ def _ceiling_model(boot, played, fx, lams, gws):
     return out
 
 
+# Same codes the training panel uses. Wrong numbers here would not raise —
+# the model would simply be told every defender is a forward.
+POS_CODE = {"GKP": 1.0, "GK": 1.0, "DEF": 2.0, "MID": 3.0, "FWD": 4.0}
+
+
+def _bonus_model(boot, played, fx, lams, gws, postypes):
+    """Expected bonus points, per player per gameweek.
+
+    Bonus is the last unmodelled chunk of a defender's score. The projection
+    used `bps90 / 34` — crude, but it tracked the thing that actually decides
+    bonus, and monotonically.
+
+    The model that replaced it has to clear that bar, so this returns None
+    unless it is the classifier: an earlier bonus model regressed the mean,
+    learned price, and would have made defenders worse while looking wired in.
+    A bundle without `predict_proba` is that model, and the caller falls back
+    to the heuristic rather than trusting it.
+
+    Returns {player_id: {gw: expected bonus}}, or None.
+    """
+    if learn is None:
+        return None
+    bundle = learn.load("bonus")
+    if not bundle or not hasattr(bundle["model"], "predict_proba"):
+        return None
+    import pandas as pd
+
+    def f(v):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return 0.0
+
+    rows, keys = [], []
+    for e in boot["elements"]:
+        code = POS_CODE.get(postypes.get(e["element_type"]))
+        if code is None:
+            continue
+        for g in gws:
+            for (_d, home, _o) in fx[e["team"]][g]:
+                rows.append({
+                    "roll_bps": e["bps"] / played,
+                    "roll_minutes": e["minutes"] / played,
+                    "roll_expected_goal_involvements":
+                        f(e.get("expected_goal_involvements")) / played,
+                    "roll_influence": f(e.get("influence")) / played,
+                    "roll_threat": f(e.get("threat")) / played,
+                    "value": e["now_cost"],
+                    "was_home": 1.0 if home else 0.0,
+                    "pos_code": code,
+                    # An open game hands out more bonus at both ends.
+                    "expected_goals_conceded":
+                        lams.get(e["team"], {}).get(g) or 0.0,
+                })
+                keys.append((e["id"], g))
+    if not rows:
+        return None
+    try:
+        X = pd.DataFrame(rows)[bundle["features"]].astype(float)
+        vals = learn.expected_bonus(bundle["model"], X)
+    except (KeyError, ValueError):
+        # A bundle trained on features this build cannot assemble. Say nothing
+        # and fall back; a half-built feature row would predict confidently
+        # from zeros.
+        return None
+
+    out = {}
+    for (pid, g), v in zip(keys, vals):
+        # Two matches in a week are two goes at bonus, so these add. That is
+        # the opposite of the ceiling model, where the question is whether he
+        # hauls at all — and getting the two the same way round matters.
+        out.setdefault(pid, {})
+        out[pid][g] = out[pid].get(g, 0.0) + float(v)
+    return out
+
+
 def _prior(price, pos):
     if pos == "GKP":
         return 3.2 + (price - 4.0) * 0.50
@@ -211,6 +287,7 @@ def build(boot, fixtures, gws, solio_feed=None, solio_weight=0.7,
     # P(10+ points) per player per gameweek. Needs fx and lams, so it is built
     # here rather than alongside the minutes model.
     ceil = _ceiling_model(boot, played, fx, lams, gws)
+    bonus = _bonus_model(boot, played, fx, lams, gws, postypes)
 
     # Solio publishes name+team, so key on that.
     solio = {}
@@ -302,8 +379,17 @@ def build(boot, fixtures, gws, solio_feed=None, solio_weight=0.7,
                         pos, lam, saves90, defcon_p)
                     per90 += (float(e["expected_goals_per_90"]) * GOAL_POINTS[pos]
                               + float(e["expected_assists_per_90"]) * 3)
-                    per90 += bps90 / 34.0          # rough bonus-point yield
-                    tot += per90 * (exp_min / 90)
+                    bx = (bonus or {}).get(e["id"], {}).get(g)
+                    if bx is None:
+                        per90 += bps90 / 34.0      # rough bonus-point yield
+                        tot += per90 * (exp_min / 90)
+                    else:
+                        # The model predicts a match, not ninety minutes, and
+                        # it has already seen his usual minutes. What it cannot
+                        # see is this particular week — a midweek tie in Europe,
+                        # a doubt over a knock — so only that ratio is applied.
+                        tot += per90 * (exp_min / 90)
+                        tot += bx * min(1.5, exp_min / max(20.0, avg_min))
                 else:
                     tot += base * (exp_min / 90) * mult
                     if pos == "MID" and lam is not None:
@@ -328,6 +414,12 @@ def build(boot, fixtures, gws, solio_feed=None, solio_weight=0.7,
             "xgi90": float(e["expected_goal_involvements_per_90"]),
             "setpiece_bonus": (setpieces.bonus_per_90(e, pos)
                                if setpieces else 0.0),
+            # Expected bonus for the first gameweek in the horizon. None when
+            # the classifier is not trained — the page must show the gap rather
+            # than a zero that reads as "never gets bonus".
+            "bonus_exp": (round(bonus[e["id"]][gws[0]], 3)
+                          if bonus and gws[0] in bonus.get(e["id"], {}) else None),
+            "bps90": round(bps90, 2),
             "defcon90": float(e["defensive_contribution_per_90"]),
             "defcon_prob": round(defcon_p, 3),
             "cs_prob": (round(defence.clean_sheet(lams[e["team"]][gws[0]]), 3)

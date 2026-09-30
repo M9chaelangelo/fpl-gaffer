@@ -211,6 +211,34 @@ def haul_distribution(cards, xi_ids, captain_id=None):
     }
 
 
+def bonus(cards, limit=15):
+    """Expected bonus points, which is the last board Solio has and this did
+    not.
+
+    Ranked on the model's expectation when it is trained, and on BPS per 90
+    otherwise — because BPS is what bonus is actually awarded on, and a board
+    that silently fell back to zero would read as "nobody gets bonus" rather
+    than "we do not know yet". The row says which it used, so the number on
+    the page can always be checked against the thing it came from.
+    """
+    out = []
+    for p in cards:
+        exp, bps90 = p.get("bonus_exp"), p.get("bps90")
+        if exp is None and not bps90:
+            continue
+        r = _base(p)
+        r["bonus_exp"] = round(exp, 3) if exp is not None else None
+        r["bps90"] = bps90
+        r["basis"] = "model" if exp is not None else "bps"
+        # One scale for the whole board, or the sort is meaningless the moment
+        # the model covers some players and not others.
+        r["rank_on"] = round(exp if exp is not None else (bps90 or 0) / 34.0, 4)
+        r["minutes"] = p.get("exp_minutes")
+        r["fixture"] = (p.get("fixtures") or [None])[0]
+        out.append(r)
+    return _rank(out, "rank_on", limit)
+
+
 def build(cards, gw, xi_ids=None, captain_id=None, clean_sheets=None,
           limit=15):
     """Every board, in one dict the page can render without arithmetic."""
@@ -226,6 +254,7 @@ def build(cards, gw, xi_ids=None, captain_id=None, clean_sheets=None,
         "goals": scorers(cards, limit),
         "assists": creators(cards, limit),
         "defcon": defcon(cards, limit),
+        "bonus": bonus(cards, limit),
         "movers": movers(cards),
         "clean_sheets": clean_sheets or [],
         "hauls": (haul_distribution(cards, xi_ids, captain_id)

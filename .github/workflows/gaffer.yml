@@ -21,6 +21,11 @@ on:
         description: "Draft a wildcard for this gameweek (blank = use chip_plan)"
         required: false
         default: ""
+      retrain:
+        description: "Retrain the models before solving (needed after a model changes)"
+        required: false
+        type: boolean
+        default: false
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -35,9 +40,14 @@ jobs:
       - name: tests
         run: python -m pytest tests -q
       - name: train models if missing
+        env:
+          RETRAIN: ${{ github.event.inputs.retrain }}
         run: |
-          if [ ! -f models/minutes.joblib ]; then
-            echo "no trained models in the repo — training now (a few minutes)"
+          # A model whose features or target have changed is not "present" in
+          # any useful sense — the file on disk predicts something else. The
+          # flag is how you say so, because the check below cannot tell.
+          if [ ! -f models/minutes.joblib ] || [ "$RETRAIN" = "true" ]; then
+            echo "training models (a few minutes)"
             python -m gaffer.learn
           fi
       - name: solve

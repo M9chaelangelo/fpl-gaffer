@@ -1257,6 +1257,7 @@ const BOARDS = [
   ["goals", "Goals", "xg", "num3"],
   ["assists", "Assists", "xa", "num3"],
   ["defcon", "Def. contribution", "expected", "num3"],
+  ["bonus", "Bonus", "bonus_exp", "num3"],
   ["movers", "Price movers", "net_transfers", "int"],
 ];
 
@@ -1276,8 +1277,18 @@ function moreBoards(root) {
         `${r.team} · £${fmt(r.price, "money")}` +
         (r.fixture ? ` · ${r.fixture}` : "") +
         (r.own != null ? ` · ${fmt(r.own, "pct")} owned` : "")));
-      row.append(g);
-      row.append(el("span", "big big-m accent", fmt(r[valueKey], kind)));
+      // The bonus board ranks on the model when it is trained and on BPS per
+      // 90 when it is not. Printing the expected value either way would put a
+      // number on the page that nothing computed, so the row shows what it
+      // actually ranked on and says which.
+      if (key === "bonus" && r.basis === "bps") {
+        g.append(el("div", "sub", "ranked on BPS — bonus model not trained"));
+        row.append(g);
+        row.append(el("span", "big big-m accent", fmt(r.bps90, "num")));
+      } else {
+        row.append(g);
+        row.append(el("span", "big big-m accent", fmt(r[valueKey], kind)));
+      }
       row.addEventListener("click", () => { S.cmp[0] = r.id; S.more = "compare"; renderMore(); });
       c.append(row);
     }

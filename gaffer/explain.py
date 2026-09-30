@@ -29,6 +29,8 @@ def player_card(pid, proj, prof, lg_own, pack_own, elite_own, price_fc, gws):
         "defcon_prob": p.get("defcon_prob"),
         "cs_prob": p.get("cs_prob"),
         "setpiece": p.get("setpiece_bonus"),
+        "bonus_exp": p.get("bonus_exp"),
+        "bps90": p.get("bps90"),
         "own_league": lg_own.get(pid, 0.0),
         "own_pack": pack_own.get(pid, 0.0),
         "own_elite": elite_own.get(pid) if elite_own else None,
